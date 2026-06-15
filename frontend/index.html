@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منصة تبادل الكتب - جامعة الخليل</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <nav class="navbar">
+
+    <div class="nav-container">
+
+        <div class="nav-brand">
+
+            <img src="images/hebron-logo.png" alt="جامعة الخليل">
+
+            <span>جامعة الخليل</span>
+
+        </div>
+
+
+        <div class="nav-buttons">
+
+            <a href="login.html" class="btn-login">
+                تسجيل الدخول
+            </a>
+
+            <a href="register.html" class="btn-register">
+                إنشاء حساب
+            </a>
+
+        </div>
+
+    </div>
+
+</nav>
+
+    <!-- Hero Section -->
+
+    <section class="hero">
+
+    <div class="hero-overlay"></div>
+
+    <div class="hero-container">
+
+        <div class="hero-image">
+            <img src="images/hebron-logo.png" alt="جامعة الخليل">
+        </div>
+
+        <div class="hero-content">
+
+            <h1>منصة تبادل الكتب</h1>
+
+            <h2>جامعة الخليل</h2>
+
+            <p>
+                شارك كتبك الدراسية مع زملائك وساهم في بناء
+                مجتمع معرفي داخل الجامعة
+            </p>
+
+            <div class="hero-stats">
+
+                <div class="stat-box">
+                    <h3>1000+</h3>
+                    <span>كتاب دراسي</span>
+                </div>
+
+                <div class="stat-box">
+                    <h3>5000+</h3>
+                    <span>طالب جامعي</span>
+                </div>
+
+                <div class="stat-box">
+                    <h3>750+</h3>
+                    <span>عملية تبادل</span>
+                </div>
+
+            </div>
+
+            <a href="login.html" class="hero-btn">
+                ابدأ الآن
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
+    <!-- Features -->
+
+    <section class="features">
+
+        <div class="features-container">
+
+            <h2>لماذا منصة تبادل الكتب؟</h2>
+
+            <div class="features-grid">
+
+                <div class="feature-card">
+                    <div class="feature-icon">🎓</div>
+                    <h3>خاصة بجامعة الخليل</h3>
+                    <p>
+                        المنصة مخصصة لطلاب جامعة الخليل باستخدام البريد الجامعي.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">📚</div>
+                    <h3>توفير الكتب</h3>
+                    <p>
+                        احصل على الكتب التي تحتاجها من زملائك بسهولة.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🔄</div>
+                    <h3>تبادل مباشر</h3>
+                    <p>
+                        أرسل واستقبل طلبات التبادل بسرعة وسهولة.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">💰</div>
+                    <h3>توفير التكاليف</h3>
+                    <p>
+                        وفر المال من خلال إعادة استخدام الكتب الدراسية.
+                    </p>
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- Footer -->
+
+    <footer class="footer">
+        <p>
+            © 2026 منصة تبادل الكتب - جامعة الخليل
+        </p>
+    </footer>
+
+    <script>
+
+        document.querySelectorAll('.counter').forEach(counter => {
+
+            const target = +counter.dataset.target;
+            let current = 0;
+
+            const updateCounter = () => {
+
+                current += target / 100;
+
+                if (current < target) {
+
+                    counter.innerText = Math.ceil(current);
+
+                    requestAnimationFrame(updateCounter);
+
+                } else {
+
+                    counter.innerText = target + "+";
+
+                }
+            };
+
+            updateCounter();
+
+        });
+
+    </script>
+
+</body>
+
+</html>

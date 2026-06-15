@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل الدخول - تبادل الكتب</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            margin: 0;
+        }
+
+        .auth-wrapper {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #ffffff;
+            padding: 20px;
+        }
+
+        .auth-card {
+            background: #fff;
+            border-radius: 24px;
+            box-shadow: 0 8px 24px rgba(17, 117, 59, .35);
+            width: 100%;
+            max-width: 420px;
+            overflow: hidden;
+        }
+
+        /* Gradient header — touches top edge */
+        .auth-card-header {
+            background: linear-gradient(135deg, #11753b 0%, #1da05a 100%);
+            padding: 36px 28px 28px;
+            text-align: center;
+            color: #fff;
+        }
+
+        .auth-card-header .icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .auth-card-header h1 {
+            margin: 0 0 6px;
+            font-size: 1.7rem;
+            font-weight: 800;
+        }
+
+        .auth-card-header p {
+            margin: 0;
+            opacity: .82;
+            font-size: .9rem;
+        }
+
+        /* Form body */
+        .auth-card-body {
+            padding: 32px 28px;
+        }
+
+        .auth-field {
+            margin-bottom: 20px;
+        }
+
+        .auth-field label {
+            display: block;
+            font-size: .88rem;
+            font-weight: 700;
+            color: #4a5568;
+            margin-bottom: 8px;
+        }
+
+        .auth-field input {
+            width: 100%;
+            padding: 13px 16px;
+            border: 2px solid #e0e7ff;
+            border-radius: 12px;
+            font-size: .95rem;
+            font-family: inherit;
+            outline: none;
+            box-sizing: border-box;
+            background: #fafbff;
+            transition: border .2s, box-shadow .2s;
+        }
+
+        .auth-field input:focus {
+            border-color: #11753b;
+            box-shadow: 0 0 0 3px rgba(17, 117, 59, .12);
+            background: #fff;
+        }
+
+        .auth-submit {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #11753b, #1da05a);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all .2s;
+            margin-top: 4px;
+        }
+
+        .auth-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(102, 126, 234, .35);
+        }
+
+        .auth-submit:disabled {
+            opacity: .65;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .auth-alt {
+            text-align: center;
+            margin-top: 20px;
+            font-size: .9rem;
+            color: #718096;
+        }
+
+        .auth-alt a {
+            color: #11753b;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .auth-alt a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="auth-wrapper">
+        <div class="auth-card">
+
+            <!-- Header — full bleed to top -->
+            <div class="auth-card-header">
+                <span class="icon">📚</span>
+                <h1>تسجيل الدخول</h1>
+                <p>دخول حسابك في منصة التبادل</p>
+            </div>
+
+            <div class="auth-card-body">
+                <form id="loginForm" novalidate>
+
+                    <div class="auth-field">
+                        <label for="email">البريد الجامعي</label>
+                        <input type="email" id="email" name="email" placeholder="22210023@students.hebron.edu"
+                            autocomplete="email" required>
+                    </div>
+
+                    <div class="auth-field">
+                        <label for="password">كلمة المرور</label>
+                        <input type="password" id="password" name="password" placeholder="أدخل كلمة مرورك"
+                            autocomplete="current-password" required>
+                    </div>
+
+                    <button type="submit" class="auth-submit" id="loginBtn">
+                        تسجيل الدخول ←
+                    </button>
+                </form>
+
+                <p class="auth-alt">
+                    ليس لديك حساب؟ <a href="register.html">سجل هنا</a>
+                </p>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="toastContainer" class="toast-container"></div>
+    <script src="app.js"></script>
+</body>
+
+</html>

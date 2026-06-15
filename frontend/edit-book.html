@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تعديل الكتاب - تبادل الكتب</title>
+    <meta name="description" content="تعديل بيانات كتابك في منصة تبادل الكتب الجامعية">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<!-- Floating Chatbot Button -->
+<div class="chatbot-bubble" onclick="toggleChatbot()">🤖</div>
+<div class="chatbot-box hidden" id="chatbotBox">
+    <div class="chatbot-header">
+        <span>Live Assistant</span>
+        <button onclick="toggleChatbot()">✖</button>
+    </div>
+    <div class="chatbot-messages" id="chatbotMessages">
+        <div class="bot-msg">👋 اسألني عن أي كتاب موجود في النظام</div>
+    </div>
+    <div class="chatbot-input">
+        <input type="text" id="chatbotInput" placeholder="اكتب سؤالك...">
+        <button onclick="sendChatbotMessage()">إرسال</button>
+    </div>
+</div>
+
+<body>
+    <!-- Navbar injected by navbar.js -->
+
+    <div class="page-container">
+        <div class="page-header">
+            <h1>✏️ تعديل الكتاب</h1>
+            <p>قم بتحديث بيانات كتابك وحالة التوفر</p>
+        </div>
+
+        <div class="form-container">
+            <form id="editBookForm" class="book-form">
+
+                <div class="form-group">
+                    <label for="editTitle">عنوان الكتاب *</label>
+                    <input type="text" id="editTitle" name="title" placeholder="أدخل عنوان الكتاب" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="editDescription">الوصف *</label>
+                    <textarea id="editDescription" name="description" placeholder="صف حالة الكتاب والتفاصيل" rows="5" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="editCondition">الحالة *</label>
+                    <select id="editCondition" name="condition" required>
+                        <option value="">اختر الحالة</option>
+                        <option value="New">جديد</option>
+                        <option value="Used">مستعمل</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="editStatus">حالة التوفر *</label>
+                    <select id="editStatus" name="status" required>
+                        <option value="available">متاح للتبادل</option>
+                        <option value="reserved">محجوز</option>
+                        <option value="unavailable">غير متوفر (إخفاء من القائمة)</option>
+                    </select>
+                    <p class="form-hint" id="statusHint"></p>
+                </div>
+
+                <div class="form-group">
+                    <label for="editImageUrl">رابط الصورة (اختياري)</label>
+                    <input type="url" id="editImageUrl" name="imageUrl" placeholder="https://example.com/book.jpg">
+                    <div id="editImagePreview" class="image-preview hidden">
+                        <img id="editPreviewImg" src="" alt="معاينة">
+                    </div>
+                </div>
+
+                <!-- Unavailable warning banner -->
+                <div class="status-warning hidden" id="unavailableWarning">
+                    <span>⚠️</span>
+                    <p>عند اختيار <strong>غير متوفر</strong>، سيُخفى الكتاب فوراً من صفحة تبادل الكتب ولن يظهر لأي مستخدم آخر.</p>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary" id="editSubmitBtn">حفظ التعديلات</button>
+                    <a href="my-books.html" class="btn btn-secondary">إلغاء</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast notifications -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script src="navbar.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

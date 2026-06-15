@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تبادل الكتب - جامعة الخليل</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- Floating Chatbot Button -->
+    <div class="chatbot-bubble" onclick="toggleChatbot()">
+        🤖
+    </div>
+
+    <!-- Chat Window -->
+    <div class="chatbot-box hidden" id="chatbotBox">
+        <div class="chatbot-header">
+            <span>Live Assistant</span>
+            <button type="button" onclick="toggleChatbot()">✖</button>
+        </div>
+
+        <div class="chatbot-messages" id="chatbotMessages">
+            <div class="bot-msg">
+                👋 اسألني عن أي كتاب موجود في النظام
+            </div>
+        </div>
+
+        <div class="chatbot-input">
+            <input
+                type="text"
+                id="chatbotInput"
+                placeholder="اكتب سؤالك..."
+                onkeypress="if(event.key==='Enter') sendChatbotMessage()"
+            >
+            <button type="button" onclick="sendChatbotMessage()">
+                إرسال
+            </button>
+        </div>
+    </div>
+
+    <!-- Navbar injected by navbar.js -->
+
+    <div class="page-container">
+        <div class="page-header">
+            <h1>📚 تبادل الكتب</h1>
+            <p>تبادل الكتب مع طلاب جامعة الخليل - بدون بيع، فقط تبادل!</p>
+        </div>
+
+        <!-- البحث والفلترة -->
+        <div class="filters-section">
+            <input type="text" id="searchInput" placeholder="ابحث عن الكتب..." class="search-input">
+            <select id="conditionFilter" class="filter-select">
+                <option value="">جميع الحالات</option>
+                <option value="New">جديد</option>
+                <option value="Used">مستعمل</option>
+            </select>
+        </div>
+
+        <!-- شبكة الكتب -->
+        <div id="booksGrid" class="books-grid">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>جاري تحميل الكتب...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة تفاصيل الكتاب -->
+    <div id="bookModal" class="modal hidden">
+        <div class="modal-content">
+            <button class="modal-close" id="closeModal">&times;</button>
+            <div class="modal-body">
+                <!-- Carousel -->
+                <div class="modal-carousel" id="modalCarousel">
+                    <div class="carousel-track" id="carouselTrack"></div>
+                    <button class="carousel-btn carousel-prev" id="carouselPrev" onclick="carouselPrev()">&#8249;</button>
+                    <button class="carousel-btn carousel-next" id="carouselNext" onclick="carouselNext()">&#8250;</button>
+                    <div class="carousel-dots" id="carouselDots"></div>
+                </div>
+                <div class="modal-details">
+                    <h2 id="bookTitle"></h2>
+                    <div class="book-meta">
+                        <span class="badge" id="bookCondition"></span>
+                    </div>
+                    <div class="book-info">
+                        <p><strong>من:</strong> <span id="bookOwner"></span></p>
+                        <p><strong>الوصف:</strong></p>
+                        <p id="bookDescription" class="book-description"></p>
+                    </div>
+                    <div id="exchangeActions" class="modal-actions"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- إشعارات الرسائل -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script src="navbar.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

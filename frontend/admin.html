@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة تحكم المدير - تبادل الكتب</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* ── Admin Panel Overrides ── */
+        .admin-shell { max-width: 1200px; margin: 0 auto; padding: 24px 16px; }
+
+        /* Stat cards */
+        .admin-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        .a-stat {
+            background: #fff;
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 16px rgba(102,126,234,.1);
+            border: 1px solid #e0e7ff;
+        }
+        .a-stat-num {
+            font-size: 2.4rem;
+            font-weight: 800;
+            background: linear-gradient(135deg,#667eea,#764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .a-stat-num.green  { background: linear-gradient(135deg,#06d6a0,#0bbf87); -webkit-background-clip:text; background-clip:text; }
+        .a-stat-num.orange { background: linear-gradient(135deg,#ffd166,#f4a261); -webkit-background-clip:text; background-clip:text; }
+        .a-stat-num.red    { background: linear-gradient(135deg,#ef476f,#c0392b); -webkit-background-clip:text; background-clip:text; }
+        .a-stat-num.blue   { background: linear-gradient(135deg,#4facfe,#00f2fe);  -webkit-background-clip:text; background-clip:text; }
+        .a-stat-label { font-size: .85rem; color: #718096; margin-top: 6px; font-weight: 600; }
+
+        /* Tabs */
+        .admin-tabs { display: flex; gap: 8px; margin-bottom: 24px; border-bottom: 2px solid #e0e7ff; padding-bottom: 0; }
+        .admin-tab {
+            padding: 10px 24px; border: none; background: none; font-family: inherit;
+            font-size: 1rem; font-weight: 700; color: #718096; cursor: pointer;
+            border-bottom: 3px solid transparent; margin-bottom: -2px; transition: all .2s;
+        }
+        .admin-tab.active { color: #667eea; border-bottom-color: #667eea; }
+        .admin-tab:hover  { color: #667eea; }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        /* Table */
+        .a-table-wrap { overflow-x: auto; border-radius: 14px; box-shadow: 0 4px 16px rgba(0,0,0,.06); }
+        .a-table { width: 100%; border-collapse: collapse; background: #fff; }
+        .a-table th { background: linear-gradient(135deg,#667eea,#764ba2); color: #fff; padding: 14px 16px; font-size: .88rem; text-align: right; font-weight: 700; }
+        .a-table th:first-child { border-radius: 0 14px 0 0; }
+        .a-table th:last-child  { border-radius: 14px 0 0 0; }
+        .a-table td { padding: 12px 16px; border-bottom: 1px solid #f0f4ff; font-size: .9rem; vertical-align: middle; }
+        .a-table tr:last-child td { border-bottom: none; }
+        .a-table tr:hover td { background: #fafbff; }
+
+        /* Badges */
+        .a-badge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:.75rem; font-weight:700; }
+        .a-badge.available   { background:#d4f5ec; color:#0bbf87; }
+        .a-badge.reserved    { background:#fff3cd; color:#d97706; }
+        .a-badge.unavailable { background:#fde8ef; color:#ef476f; }
+        .a-badge.admin-role  { background:#ede9fe; color:#7c3aed; }
+        .a-badge.user-role   { background:#e0e7ff; color:#4338ca; }
+        .a-badge.verified    { background:#d4f5ec; color:#0bbf87; }
+        .a-badge.unverified  { background:#fde8ef; color:#ef476f; }
+
+        /* Action buttons */
+        .a-btn { border:none; border-radius:8px; padding:6px 14px; font-size:.82rem; font-weight:700; cursor:pointer; font-family:inherit; transition:all .2s; }
+        .a-btn-danger  { background:#fde8ef; color:#ef476f; }
+        .a-btn-danger:hover  { background:#ef476f; color:#fff; }
+        .a-btn-warn    { background:#fff3cd; color:#d97706; }
+        .a-btn-warn:hover    { background:#d97706; color:#fff; }
+        .a-btn-ok      { background:#d4f5ec; color:#0bbf87; }
+        .a-btn-ok:hover      { background:#0bbf87; color:#fff; }
+        .a-btn-purple  { background:#ede9fe; color:#7c3aed; }
+        .a-btn-purple:hover  { background:#7c3aed; color:#fff; }
+        .a-actions { display:flex; gap:6px; flex-wrap:wrap; }
+
+        /* Search bar */
+        .a-search { width:100%; padding:10px 16px; border:2px solid #e0e7ff; border-radius:12px; font-size:.95rem; margin-bottom:16px; font-family:inherit; outline:none; transition: border .2s; }
+        .a-search:focus { border-color:#667eea; }
+
+        /* Confirm modal */
+        .confirm-overlay { position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:9000; display:flex; align-items:center; justify-content:center; }
+        .confirm-box { background:#fff; border-radius:20px; padding:32px; max-width:400px; width:90%; text-align:center; box-shadow:0 20px 60px rgba(0,0,0,.2); }
+        .confirm-box h3 { margin-bottom:12px; font-size:1.2rem; }
+        .confirm-box p  { color:#718096; margin-bottom:24px; }
+        .confirm-btns   { display:flex; gap:12px; justify-content:center; }
+
+        .page-header h1 { font-size: 1.8rem; }
+    </style>
+</head>
+<body>
+<!-- Navbar injected by navbar.js -->
+
+<div class="page-container">
+    <div class="page-header">
+        <h1>🛡️ لوحة تحكم المدير</h1>
+        <p>إدارة شاملة للمنصة — مستخدمون، كتب، إحصائيات</p>
+    </div>
+
+    <div class="admin-shell">
+
+        <!-- ── STATS ── -->
+        <div class="admin-stats-grid" id="statsGrid">
+            <div class="a-stat"><div class="a-stat-num" id="sUsers">—</div><div class="a-stat-label">👤 المستخدمون</div></div>
+            <div class="a-stat"><div class="a-stat-num blue" id="sBooks">—</div><div class="a-stat-label">📚 الكتب</div></div>
+            <div class="a-stat"><div class="a-stat-num green" id="sAvail">—</div><div class="a-stat-label">✅ متاحة</div></div>
+            <div class="a-stat"><div class="a-stat-num orange" id="sReserved">—</div><div class="a-stat-label">🔒 محجوزة</div></div>
+            <div class="a-stat"><div class="a-stat-num red" id="sHidden">—</div><div class="a-stat-label">🚫 مخفية</div></div>
+            <div class="a-stat"><div class="a-stat-num" id="sMessages">—</div><div class="a-stat-label">💬 الرسائل</div></div>
+        </div>
+
+        <!-- ── TABS ── -->
+        <div class="admin-tabs">
+            <button class="admin-tab active" onclick="switchTab('books')">📚 الكتب</button>
+            <button class="admin-tab"        onclick="switchTab('users')">👥 المستخدمون</button>
+        </div>
+
+        <!-- ── BOOKS TAB ── -->
+        <div class="tab-panel active" id="tab-books">
+            <input class="a-search" id="bookSearch" placeholder="🔍 ابحث بعنوان الكتاب أو اسم المالك..." oninput="filterBooks()">
+            <div class="a-table-wrap">
+                <table class="a-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>الكتاب</th>
+                            <th>المالك</th>
+                            <th>الحالة</th>
+                            <th>الظهور</th>
+                            <th>آخر تحديث</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="booksBody">
+                        <tr><td colspan="7" style="text-align:center;padding:30px;color:#718096;">جاري التحميل...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ── USERS TAB ── -->
+        <div class="tab-panel" id="tab-users">
+            <input class="a-search" id="userSearch" placeholder="🔍 ابحث بالاسم أو الإيميل..." oninput="filterUsers()">
+            <div class="a-table-wrap">
+                <table class="a-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>الاسم</th>
+                            <th>الإيميل</th>
+                            <th>الدور</th>
+                            <th>التحقق</th>
+                            <th>الكتب</th>
+                            <th>تاريخ التسجيل</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersBody">
+                        <tr><td colspan="8" style="text-align:center;padding:30px;color:#718096;">جاري التحميل...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div><!-- /admin-shell -->
+</div><!-- /page-container -->
+
+<!-- ── CONFIRM DIALOG ── -->
+<div id="confirmOverlay" class="confirm-overlay" style="display:none;">
+    <div class="confirm-box">
+        <h3 id="confirmTitle">تأكيد الإجراء</h3>
+        <p id="confirmMsg"></p>
+        <div class="confirm-btns">
+            <button id="confirmYes" class="a-btn a-btn-danger">تأكيد</button>
+            <button onclick="closeConfirm()" class="a-btn a-btn-purple">إلغاء</button>
+        </div>
+    </div>
+</div>
+
+<div id="toastContainer" class="toast-container"></div>
+
+<script src="navbar.js"></script>
+<script src="app.js"></script>
+<script>
+const API = 'http://localhost:5000/api';
+let allBooks = [], allUsers = [];
+
+function token() { return localStorage.getItem('token'); }
+
+/* ── TABS ── */
+function switchTab(name) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    event.target.classList.add('active');
+}
+
+/* ── STATS ── */
+async function loadStats() {
+    try {
+        const res = await fetch(`${API}/admin/stats`, { headers: { Authorization: `Bearer ${token()}` } });
+        const d = await res.json();
+        document.getElementById('sUsers').textContent    = d.totalUsers    ?? '—';
+        document.getElementById('sBooks').textContent    = d.totalBooks    ?? '—';
+        document.getElementById('sAvail').textContent    = d.available     ?? '—';
+        document.getElementById('sReserved').textContent = d.reserved      ?? '—';
+        document.getElementById('sHidden').textContent   = d.unavailable   ?? '—';
+        document.getElementById('sMessages').textContent = d.totalMessages ?? '—';
+    } catch(e) { console.error(e); }
+}
+
+/* ── BOOKS ── */
+async function loadBooks() {
+    const res  = await fetch(`${API}/admin/books`, { headers: { Authorization: `Bearer ${token()}` } });
+    allBooks   = await res.json();
+    renderBooks(allBooks);
+}
+
+function filterBooks() {
+    const q = document.getElementById('bookSearch').value.toLowerCase();
+    renderBooks(allBooks.filter(b =>
+        b.title.toLowerCase().includes(q) || b.owner_name.toLowerCase().includes(q)
+    ));
+}
+
+function renderBooks(books) {
+    const tbody = document.getElementById('booksBody');
+    if (!books.length) { tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:24px;color:#718096;">لا توجد كتب</td></tr>`; return; }
+
+    const statusMap = { available:'متاح', reserved:'محجوز', unavailable:'غير متوفر' };
+    const statusCls = { available:'available', reserved:'reserved', unavailable:'unavailable' };
+
+    tbody.innerHTML = books.map((b, i) => `
+        <tr>
+            <td style="color:#a0aec0;font-size:.82rem;">${i+1}</td>
+            <td><strong>${escH(b.title)}</strong><br><small style="color:#a0aec0">${escH(b.description?.substring(0,40) || '')}...</small></td>
+            <td>${escH(b.owner_name)}<br><small style="color:#a0aec0"><bdo dir="ltr">${escH(b.owner_email||'')}</bdo></small></td>
+            <td><span class="a-badge ${statusCls[b.status]||'available'}">${statusMap[b.status]||'متاح'}</span></td>
+            <td>${b.is_visible ? '🟢 ظاهر' : '🔴 مخفي'}</td>
+            <td style="font-size:.8rem;color:#718096;">${new Date(b.updated_at).toLocaleDateString('ar-SA')}</td>
+            <td>
+                <div class="a-actions">
+                    ${b.status !== 'available'   ? `<button class="a-btn a-btn-ok"      onclick="changeBookStatus(${b.id},'available')">✅ إتاحة</button>` : ''}
+                    ${b.status !== 'reserved'    ? `<button class="a-btn a-btn-warn"    onclick="changeBookStatus(${b.id},'reserved')">🔒 حجز</button>` : ''}
+                    ${b.status !== 'unavailable' ? `<button class="a-btn a-btn-purple"  onclick="changeBookStatus(${b.id},'unavailable')">🚫 إخفاء</button>` : ''}
+                    <button class="a-btn a-btn-danger" onclick="confirmAction('حذف الكتاب نهائياً؟',()=>deleteBook(${b.id}))">🗑️ حذف</button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+}
+
+async function changeBookStatus(id, status) {
+    await fetch(`${API}/admin/books/${id}/status`, {
+        method:'PUT', headers:{ Authorization:`Bearer ${token()}`, 'Content-Type':'application/json' },
+        body: JSON.stringify({ status })
+    });
+    showToast('تم تغيير الحالة','success');
+    loadBooks(); loadStats();
+}
+
+async function deleteBook(id) {
+    await fetch(`${API}/admin/books/${id}`, { method:'DELETE', headers:{ Authorization:`Bearer ${token()}` } });
+    showToast('تم حذف الكتاب','success');
+    loadBooks(); loadStats(); closeConfirm();
+}
+
+/* ── USERS ── */
+async function loadUsers() {
+    const res = await fetch(`${API}/admin/users`, { headers: { Authorization: `Bearer ${token()}` } });
+    allUsers  = await res.json();
+    renderUsers(allUsers);
+}
+
+function filterUsers() {
+    const q = document.getElementById('userSearch').value.toLowerCase();
+    renderUsers(allUsers.filter(u =>
+        u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q)
+    ));
+}
+
+function renderUsers(users) {
+    const tbody = document.getElementById('usersBody');
+    if (!users.length) { tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:24px;color:#718096;">لا يوجد مستخدمون</td></tr>`; return; }
+
+    tbody.innerHTML = users.map((u, i) => `
+        <tr>
+            <td style="color:#a0aec0;font-size:.82rem;">${i+1}</td>
+            <td><strong>${escH(u.name)}</strong></td>
+            <td><bdo dir="ltr" style="font-size:.85rem;">${escH(u.email)}</bdo></td>
+            <td><span class="a-badge ${u.role === 'admin' ? 'admin-role':'user-role'}">${u.role === 'admin' ? '🛡️ مدير':'👤 مستخدم'}</span></td>
+            <td><span class="a-badge ${u.is_verified ? 'verified':'unverified'}">${u.is_verified ? '✅ مفعّل':'❌ غير مفعّل'}</span></td>
+            <td style="text-align:center;font-weight:700;">${u.book_count}</td>
+            <td style="font-size:.8rem;color:#718096;">${new Date(u.created_at).toLocaleDateString('ar-SA')}</td>
+            <td>
+                <div class="a-actions">
+                    <button class="a-btn ${u.is_verified ? 'a-btn-warn':'a-btn-ok'}" onclick="toggleVerify(${u.id})">
+                        ${u.is_verified ? '🔒 تعطيل':'✅ تفعيل'}
+                    </button>
+                    ${u.role !== 'admin' ? `<button class="a-btn a-btn-danger" onclick="confirmAction('حذف المستخدم ${escH(u.name)} وجميع بياناته؟',()=>deleteUser(${u.id}))">🗑️ حذف</button>` : ''}
+                </div>
+            </td>
+        </tr>
+    `).join('');
+}
+
+async function toggleVerify(id) {
+    const res  = await fetch(`${API}/admin/users/${id}/verify`, { method:'PATCH', headers:{ Authorization:`Bearer ${token()}` } });
+    const data = await res.json();
+    showToast(data.message, 'success');
+    loadUsers(); loadStats();
+}
+
+async function deleteUser(id) {
+    const res = await fetch(`${API}/admin/users/${id}`, { method:'DELETE', headers:{ Authorization:`Bearer ${token()}` } });
+    const data = await res.json();
+    showToast(data.message || 'تم الحذف', 'success');
+    loadUsers(); loadStats(); closeConfirm();
+}
+
+/* ── CONFIRM DIALOG ── */
+function confirmAction(msg, cb) {
+    document.getElementById('confirmMsg').textContent = msg;
+    document.getElementById('confirmOverlay').style.display = 'flex';
+    document.getElementById('confirmYes').onclick = cb;
+}
+function closeConfirm() {
+    document.getElementById('confirmOverlay').style.display = 'none';
+}
+
+/* ── UTIL ── */
+function escH(t) {
+    if (!t) return '';
+    return String(t).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+}
+
+/* ── INIT ── */
+window.addEventListener('DOMContentLoaded', async () => {
+    const tok = localStorage.getItem('token');
+    if (!tok) { location.href='login.html'; return; }
+
+    // Check admin role
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    if (user.role !== 'admin') { location.href='index.html'; return; }
+
+    await Promise.all([loadStats(), loadBooks(), loadUsers()]);
+});
+</script>
+</body>
+</html>

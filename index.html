@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HU Book Exchange - Hebron University</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- NAVIGATION BAR -->
+    <nav class="navbar" id="navbar">
+        <div class="navbar-container">
+            <div class="navbar-logo">
+                <span class="logo-icon">📚</span>
+                <span>HU Book Exchange</span>
+            </div>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="#" class="nav-link" data-page="home">Home</a></li>
+                <li><a href="#" class="nav-link" data-page="add-book">Add Book</a></li>
+                <li><a href="#" class="nav-link" data-page="my-books">My Books</a></li>
+                <li><button class="nav-btn logout-btn" id="logoutBtn">Logout</button></li>
+            </ul>
+            <div class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTAINER -->
+    <div class="container">
+        <!-- LOGIN PAGE -->
+        <section id="loginPage" class="page active">
+            <div class="auth-container">
+                <div class="auth-box">
+                    <div class="auth-header">
+                        <h1>📚 HU Book Exchange</h1>
+                        <p>Welcome to Hebron University's Book Marketplace</p>
+                    </div>
+
+                    <form id="loginForm" class="auth-form">
+                        <div class="form-group">
+                            <label for="loginEmail">Email</label>
+                            <input type="email" id="loginEmail" placeholder="your@students.hebron.edu" required>
+                            <span class="help-text">Must use your university email</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="loginPassword">Password</label>
+                            <input type="password" id="loginPassword" placeholder="Enter your password" required>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-full">Login</button>
+                    </form>
+
+                    <div class="auth-footer">
+                        <p>Don't have an account? <a href="#" id="switchToRegister">Register here</a></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- REGISTER PAGE -->
+        <section id="registerPage" class="page">
+            <div class="auth-container">
+                <div class="auth-box">
+                    <div class="auth-header">
+                        <h1>Create Account</h1>
+                        <p>Join the book exchange community</p>
+                    </div>
+
+                    <form id="registerForm" class="auth-form">
+                        <div class="form-group">
+                            <label for="regName">Full Name</label>
+                            <input type="text" id="regName" placeholder="Your full name" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="regEmail">Email</label>
+                            <input type="email" id="regEmail" placeholder="your@students.hebron.edu" required>
+                            <span class="help-text">Must end with @students.hebron.edu</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="regPassword">Password</label>
+                            <input type="password" id="regPassword" placeholder="Create a strong password" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="regConfirm">Confirm Password</label>
+                            <input type="password" id="regConfirm" placeholder="Confirm your password" required>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-full">Register</button>
+                    </form>
+
+                    <div class="auth-footer">
+                        <p>Already have an account? <a href="#" id="switchToLogin">Login here</a></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- EMAIL VERIFICATION MODAL -->
+        <div id="verificationModal" class="modal">
+            <div class="modal-content modal-center">
+                <div class="modal-header">
+                    <h2>Verify Your Email</h2>
+                    <button class="modal-close" id="closeVerification">&times;</button>
+                </div>
+                <p class="modal-description">We've sent a 6-digit verification code to your email</p>
+                <form id="verificationForm">
+                    <div class="form-group">
+                        <input type="text" id="verificationCode" maxlength="6" placeholder="000000" class="verification-input" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">Verify Email</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- HOME PAGE (MARKETPLACE) -->
+        <section id="homePage" class="page">
+            <div class="page-header">
+                <h1>Book Marketplace</h1>
+                <p>Find and exchange books with fellow students</p>
+            </div>
+
+            <!-- FILTERS -->
+            <div class="filters-section">
+                <div class="filter-group">
+                    <input type="text" id="searchInput" placeholder="Search books by title..." class="search-input">
+                </div>
+                <div class="filter-group">
+                    <select id="conditionFilter" class="filter-select">
+                        <option value="">All Conditions</option>
+                        <option value="New">New</option>
+                        <option value="Used">Used</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <select id="priceFilter" class="filter-select">
+                        <option value="">All Prices</option>
+                        <option value="0-20">Under 20 ILS</option>
+                        <option value="20-50">20 - 50 ILS</option>
+                        <option value="50-100">50 - 100 ILS</option>
+                        <option value="100-999">100+ ILS</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- BOOKS GRID -->
+            <div id="booksGrid" class="books-grid">
+                <div class="empty-state" id="emptyState">
+                    <div class="empty-icon">📚</div>
+                    <h2>No books available</h2>
+                    <p>Be the first to add a book!</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ADD BOOK PAGE -->
+        <section id="addBookPage" class="page">
+            <div class="page-container">
+                <div class="page-header">
+                    <h1>Add a New Book</h1>
+                    <p>Share your book with the community</p>
+                </div>
+
+                <form id="addBookForm" class="add-book-form">
+                    <div class="form-group">
+                        <label for="bookTitle">Book Title *</label>
+                        <input type="text" id="bookTitle" placeholder="Enter book title" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="bookDescription">Description *</label>
+                        <textarea id="bookDescription" placeholder="Describe the book condition and details" rows="4" required></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="bookPrice">Price (ILS) *</label>
+                            <input type="number" id="bookPrice" placeholder="0" min="0" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="bookCondition">Condition *</label>
+                            <select id="bookCondition" required>
+                                <option value="">Select condition</option>
+                                <option value="New">New</option>
+                                <option value="Used">Used</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="bookImage">Image URL</label>
+                        <input type="url" id="bookImage" placeholder="https://example.com/book.jpg">
+                        <span class="help-text">Optional: Add a book cover image URL</span>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Add Book</button>
+                        <button type="button" class="btn btn-secondary" id="cancelAddBook">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- MY BOOKS PAGE -->
+        <section id="myBooksPage" class="page">
+            <div class="page-container">
+                <div class="page-header">
+                    <h1>My Books</h1>
+                    <p>Manage your listed books</p>
+                </div>
+
+                <div id="myBooksGrid" class="books-grid">
+                    <div class="empty-state">
+                        <div class="empty-icon">📭</div>
+                        <h2>You haven't added any books yet</h2>
+                        <p><a href="#" class="nav-link" data-page="add-book">Add your first book</a></p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- BOOK DETAILS MODAL -->
+    <div id="bookModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" id="closeBookModal">&times;</button>
+            <div class="modal-body">
+                <div class="modal-image">
+                    <img id="modalBookImage" src="" alt="Book cover">
+                </div>
+                <div class="modal-details">
+                    <h2 id="modalBookTitle"></h2>
+                    <div class="book-meta">
+                        <span class="badge" id="modalCondition"></span>
+                        <span class="book-price" id="modalPrice"></span>
+                    </div>
+                    <div class="book-owner">
+                        <strong>Owner:</strong> <span id="modalOwner"></span>
+                    </div>
+                    <div class="book-description">
+                        <strong>Description:</strong>
+                        <p id="modalDescription"></p>
+                    </div>
+                    <button class="btn btn-primary btn-full" id="contactBtn">Contact Owner</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONTACT MODAL -->
+    <div id="contactModal" class="modal">
+        <div class="modal-content modal-center">
+            <button class="modal-close" id="closeContactModal">&times;</button>
+            <div class="modal-header">
+                <h2>Contact Owner</h2>
+            </div>
+            <div class="contact-info">
+                <p>Owner: <strong id="ownerName"></strong></p>
+                <p>In a real app, you would send a message here.</p>
+                <p style="color: #666; font-size: 0.9rem; margin-top: 1rem;">This is a demo interface. Messages cannot be sent.</p>
+            </div>
+            <button class="btn btn-secondary btn-full" id="closeContactBtn">Close</button>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATIONS -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>

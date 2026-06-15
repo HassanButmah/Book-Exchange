@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الرسائل - تبادل الكتب</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Navbar injected by navbar.js -->
+<!-- ================= MAIN ================= -->
+<main class="messages-container">
+
+    <div class="messages-header">
+        <h1>💬 الرسائل</h1>
+        <p>تواصل مع الطلاب الآخرين حول الكتب</p>
+    </div>
+
+    <div class="messages-layout">
+
+        <!-- ============ CHAT PANEL ============ -->
+        <section class="messages-panel">
+
+            <div class="chat-header" id="chatHeader" style="display:none;">
+                <div class="chat-user-info">
+    <h2 id="chatUserName"></h2>
+<p id="chatUserEmail" class="chat-email"></p>
+    <p id="chatBookTitle" style="display:none;"></p>
+</div>
+            </div>
+
+            <div class="no-conversation-selected" id="noConversationSelected">
+                <div class="empty-state">
+                    <p>😊 اختر محادثة لبدء التواصل</p>
+                </div>
+            </div>
+
+            <div class="messages-content" id="messagesContent" style="display:none;">
+
+                <div class="messages-list" id="messagesList"></div>
+
+                <div class="message-input-area">
+                    <form id="messageForm" onsubmit="sendMessage(event)">
+                        <textarea id="messageInput" placeholder="أكتب رسالتك هنا..." rows="3" required></textarea>
+                        <button type="submit" class="send-btn">إرسال 📤</button>
+                    </form>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ============ CONVERSATIONS ============ -->
+        <aside class="conversations-panel">
+
+            <div class="conversations-header">
+                <h2>💬 المحادثات</h2>
+                <div class="unread-badge" id="unreadCount" style="display:none;"></div>
+            </div>
+
+            <input type="text" id="searchConversations" placeholder="🔍 ابحث..." class="search-conversations">
+
+            <div class="conversations-list" id="conversationsList">
+                <div class="empty-state">
+                    <p>📭 لا توجد محادثات</p>
+                    <small>ابدأ محادثة من صفحة الكتب</small>
+                </div>
+            </div>
+
+        </aside>
+
+    </div>
+</main>
+
+<!-- ================= TOAST ================= -->
+<div id="toast" class="toast"></div>
+
+<!-- ================= SCRIPTS ================= -->
+<script src="navbar.js"></script>
+<script src="app.js"></script>
+
+<script>
+window.API_BASE_URL = 'http://localhost:5000/api';
+window.currentConversationUserId = null;
+window.currentBookId = null;
+window.messagesRefreshInterval = null;
+
+/* LOAD CONVERSATIONS */
+window.loadConversations = async function () {
+    try {
+        const res = await fetch(`${window.API_BASE_URL}/messages/conversations`, {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+            displayConversations(data.data);
+            updateUnreadCount(data.data);
+        }
+    } catch (e) {
+        console.log(e);
+    }
+};
+
+/* DISPLAY CONVERSATIONS */
+function displayConversations(conversations) {
+    const list = document.getElementById('conversationsList');
+
+    if (!conversations.length) {
+        list.innerHTML = `<div class="empty-state"><p>📭 لا توجد محادثات</p></div>`;
+        return;
+    }
+
+    list.innerHTML = conversations.map(c => `
+    <div class="conversation-item"
+        onclick="openConversation(
+            ${c.conversation_user_id},
+            null,
+            '${c.user_name}',
+            '${c.user_email}'
+        )">
+
+        <div class="conversation-info">
+            <h3>👤 ${c.user_name}</h3>
+
+            <small class="student-id">
+                <bdo dir="ltr">${c.user_email.split('@')[0]}</bdo>
+            </small>
+
+            <p class="last-message">
+                ${c.last_message?.substring(0,40) || ''}...
+            </p>
+
+            <small>
+                ⏰ ${new Date(c.last_message_time).toLocaleTimeString('ar-SA')}
+            </small>
+        </div>
+
+        ${c.unread_count ? `<span class="unread-badge">${c.unread_count}</span>` : ''}
+    </div>
+`).join('');
+}
+
+/* UNREAD COUNT */
+function updateUnreadCount(conversations) {
+    const total = conversations.reduce((a,b)=>a+(b.unread_count||0),0);
+    const badge = document.getElementById('unreadCount');
+
+    if (total > 0) {
+        badge.style.display = 'block';
+        badge.textContent = total;
+    } else {
+        badge.style.display = 'none';
+    }
+}
+
+/* OPEN CONVERSATION */
+window.openConversation = async function(
+    userId,
+    bookId = null,
+    userName = '',
+    userEmail = ''
+) {
+
+    document.getElementById("chatUserName").textContent =
+        userName || '';
+
+    document.getElementById("chatUserEmail").textContent =
+        userEmail ? userEmail.split('@')[0] : '';
+
+    window.currentConversationUserId = userId;
+    window.currentBookId = bookId;
+
+    const res = await fetch(
+        `${window.API_BASE_URL}/messages/conversation?user_id=${userId}`,
+        {
+            headers:{
+                Authorization:`Bearer ${localStorage.getItem('token')}`
+            }
+        }
+    );
+
+    const data = await res.json();
+
+    if(data.success){
+        displayMessages(data.data);
+
+        document.getElementById('noConversationSelected').style.display='none';
+        document.getElementById('messagesContent').style.display='flex';
+        document.getElementById('chatHeader').style.display='flex';
+    }
+}
+
+/* DISPLAY MESSAGES */
+function displayMessages(messages) {
+    const list = document.getElementById('messagesList');
+    const userId = JSON.parse(localStorage.getItem('user')).id;
+
+    list.innerHTML = messages.map(m => `
+        <div class="message ${m.sender_id == userId ? 'sent':'received'}">
+            <div class="message-content">
+                <p>${escapeHtml(m.message)}</p>
+                <small>${new Date(m.created_at).toLocaleTimeString()}</small>
+            </div>
+        </div>
+    `).join('');
+
+    // Scroll to bottom after DOM is painted
+    requestAnimationFrame(() => {
+        list.scrollTop = list.scrollHeight;
+    });
+}
+
+/* SEND MESSAGE */
+window.sendMessage = async function(e){
+    e.preventDefault();
+
+    const msg = document.getElementById('messageInput').value.trim();
+    if(!msg) return;
+
+    await fetch(`${window.API_BASE_URL}/messages/send`, {
+        method:'POST',
+        headers:{
+            'Authorization':`Bearer ${localStorage.getItem('token')}`,
+            'Content-Type':'application/json'
+        },
+        body: JSON.stringify({
+            receiver_id: window.currentConversationUserId,
+            book_id: window.currentBookId,
+            message: msg
+        })
+    });
+
+    document.getElementById('messageInput').value='';
+    const currentName  = document.getElementById('chatUserName')?.textContent  || '';
+    const currentEmail = document.getElementById('chatUserEmail')?.textContent || '';
+    openConversation(window.currentConversationUserId, window.currentBookId, currentName, currentEmail);
+};
+
+/* ESCAPE */
+function escapeHtml(text){
+    return text.replace(/[&<>"']/g, m => ({
+        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'
+    }[m]));
+}
+
+/* INIT */
+window.addEventListener('DOMContentLoaded', ()=>{
+
+    if(!localStorage.getItem('token')){
+        location.href='login.html';
+        return;
+    }
+
+    loadConversations();
+const selectedUserId = sessionStorage.getItem('selectedUserId');
+
+if (selectedUserId) {
+
+    openConversation(
+        Number(selectedUserId),
+        sessionStorage.getItem('selectedBookId'),
+        sessionStorage.getItem('selectedUserName'),
+        sessionStorage.getItem('selectedUserEmail')
+    );
+
+
+}
+    setInterval(loadConversations,3000);
+});
+</script>
+
+</body>
+</html>

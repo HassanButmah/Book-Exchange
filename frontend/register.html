@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إنشاء حساب - تبادل الكتب</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            margin: 0;
+        }
+
+        .reg-wrapper {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #ffffff;
+            padding: 20px;
+        }
+
+        .reg-card {
+            background: #fff;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(17, 117, 59, .15);
+            width: 100%;
+            max-width: 440px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Sliding panels — direction ltr so translateX is predictable */
+        .reg-panels {
+            display: flex;
+            flex-direction: row;
+            width: 200%;
+            transition: transform 0.5s cubic-bezier(0.77, 0, 0.175, 1);
+        }
+
+        .reg-panels.show-otp {
+            transform: translateX(-50%);
+        }
+
+        .reg-panel {
+            width: 50%;
+            flex-shrink: 0;
+        }
+
+        /* Gradient header — touches top edge */
+        .reg-header {
+            background: linear-gradient(135deg, #11753b 0%, #1da05a 100%);
+            padding: 28px 24px 24px;
+            text-align: center;
+            color: #fff;
+        }
+
+        .reg-header .icon {
+            font-size: 44px;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .reg-header h1 {
+            margin: 0 0 4px;
+            font-size: 1.5rem;
+            font-weight: 800;
+        }
+
+        .reg-header p {
+            margin: 0;
+            opacity: .85;
+            font-size: .88rem;
+        }
+
+        /* Progress dots inside header */
+        .progress-dots {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, .4);
+            transition: all .3s;
+        }
+
+        .dot.active {
+            background: rgba(255, 255, 255, .95);
+            width: 24px;
+            border-radius: 4px;
+        }
+
+        /* Form body */
+        .reg-body {
+            padding: 28px 24px;
+        }
+
+        .reg-field {
+            margin-bottom: 16px;
+        }
+
+        .reg-field label {
+            display: block;
+            font-size: .88rem;
+            font-weight: 700;
+            color: #4a5568;
+            margin-bottom: 7px;
+        }
+
+        .reg-field input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #d4edd8;
+            border-radius: 12px;
+            font-size: .95rem;
+            font-family: inherit;
+            outline: none;
+            box-sizing: border-box;
+            background: #fafff9;
+            transition: border .2s, box-shadow .2s;
+        }
+
+        .reg-field input:focus {
+            border-color: #11753b;
+            box-shadow: 0 0 0 3px rgba(17, 117, 59, .12);
+            background: #fff;
+        }
+
+        .reg-field input.error {
+            border-color: #ef476f;
+        }
+
+        .field-hint {
+            font-size: .78rem;
+            color: #a0aec0;
+            margin-top: 5px;
+        }
+
+        .field-hint.err {
+            color: #ef476f;
+        }
+
+        .reg-btn {
+            width: 100%;
+            padding: 13px;
+            background: linear-gradient(135deg, #11753b, #1da05a);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all .2s;
+            margin-top: 4px;
+        }
+
+        .reg-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(17, 117, 59, .35);
+        }
+
+        .reg-btn:disabled {
+            opacity: .65;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .reg-footer {
+            text-align: center;
+            margin-top: 16px;
+            font-size: .88rem;
+            color: #718096;
+        }
+
+        .reg-footer a {
+            color: #11753b;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        /* OTP Panel */
+        .otp-sent-to {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .otp-sent-to .check-circle {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #06d6a0, #0bbf87);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            margin: 0 auto 12px;
+            animation: popIn .4s ease;
+        }
+
+        @keyframes popIn {
+            from {
+                transform: scale(0);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .otp-sent-to h2 {
+            margin: 0 0 6px;
+            font-size: 1.15rem;
+            color: #2d3748;
+        }
+
+        .otp-sent-to p {
+            margin: 0;
+            color: #718096;
+            font-size: .88rem;
+            line-height: 1.5;
+        }
+
+        .otp-sent-to .email-highlight {
+            color: #11753b;
+            font-weight: 700;
+            display: inline-block;
+            direction: ltr;
+        }
+
+        /* 6-digit OTP boxes */
+        .otp-boxes {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin: 20px 0;
+            direction: ltr;
+        }
+
+        .otp-box {
+            width: 46px;
+            height: 54px;
+            border: 2px solid #d4edd8;
+            border-radius: 12px;
+            font-size: 1.5rem;
+            font-weight: 800;
+            text-align: center;
+            outline: none;
+            transition: border .2s, box-shadow .2s, transform .1s;
+            background: #fafff9;
+            caret-color: transparent;
+            font-family: monospace;
+        }
+
+        .otp-box:focus {
+            border-color: #11753b;
+            box-shadow: 0 0 0 3px rgba(17, 117, 59, .15);
+            background: #fff;
+            transform: scale(1.05);
+        }
+
+        .otp-box.filled {
+            border-color: #11753b;
+            background: #f0f8f2;
+        }
+
+        .otp-box.error {
+            border-color: #ef476f;
+            box-shadow: 0 0 0 3px rgba(239, 71, 111, .12);
+            animation: shake .35s ease;
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-5px);
+            }
+
+            75% {
+                transform: translateX(5px);
+            }
+        }
+
+        .otp-timer {
+            text-align: center;
+            font-size: .85rem;
+            color: #a0aec0;
+            margin-bottom: 14px;
+        }
+
+        .otp-timer span {
+            color: #11753b;
+            font-weight: 700;
+        }
+
+        .resend-link {
+            text-align: center;
+            font-size: .85rem;
+            color: #718096;
+            margin-top: 12px;
+        }
+
+        .resend-link button {
+            background: none;
+            border: none;
+            color: #11753b;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: .85rem;
+            padding: 0;
+        }
+
+        .resend-link button:disabled {
+            color: #a0aec0;
+            cursor: default;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 12px;
+            font-size: .85rem;
+        }
+
+        .back-link button {
+            background: none;
+            border: none;
+            color: #a0aec0;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: .85rem;
+        }
+
+        .back-link button:hover {
+            color: #11753b;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="reg-wrapper">
+        <div class="reg-card">
+
+            <div class="reg-panels" id="regPanels">
+
+                <!-- STEP 1: Register Form -->
+                <div class="reg-panel">
+                    <div class="reg-header">
+                        <div class="progress-dots">
+                            <div class="dot active" id="dot1"></div>
+                            <div class="dot" id="dot2"></div>
+                        </div>
+                        <span class="icon">📚</span>
+                        <h1>إنشاء حساب</h1>
+                        <p>انضم إلى مجتمع تبادل الكتب الطلابي</p>
+                    </div>
+                    <div class="reg-body">
+                        <form id="registerForm" novalidate>
+
+                            <div class="reg-field">
+                                <label for="reg-name">الاسم الكامل</label>
+                                <input type="text" id="reg-name" placeholder="Mohammad Bataha" required
+                                    autocomplete="name">
+                            </div>
+
+                            <div class="reg-field">
+                                <label for="reg-email">البريد الجامعي</label>
+                                <input type="email" id="reg-email" placeholder="Example@students.hebron.edu" required
+                                    autocomplete="email" oninput="validateEmail(this)">
+                                <div class="field-hint" id="emailHint">يجب أن ينتهي بـ @students.hebron.edu</div>
+                            </div>
+
+                            <div class="reg-field">
+                                <label for="reg-pass">كلمة المرور</label>
+                                <input type="password" id="reg-pass"
+                                    placeholder="Password must be at least 8 characters" required
+                                    autocomplete="new-password">
+                            </div>
+
+                            <button type="submit" class="reg-btn" id="regBtn">إنشاء الحساب ←</button>
+                        </form>
+
+                        <p class="reg-footer">
+                            لديك حساب؟ <a href="login.html">سجل الدخول</a>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- STEP 2: OTP Verification -->
+                <div class="reg-panel">
+                    <div class="reg-header">
+                        <div class="progress-dots">
+                            <div class="dot" id="dot1b"></div>
+                            <div class="dot active" id="dot2b"></div>
+                        </div>
+                        <span class="icon">✉️</span>
+                        <h1>تحقق من بريدك</h1>
+                        <p>أدخل الرمز المرسل إليك</p>
+                    </div>
+                    <div class="reg-body">
+
+                        <div class="otp-sent-to">
+                            <div class="check-circle">✓</div>
+                            <h2>تم إرسال الرمز!</h2>
+                            <p>أرسلنا رمز التحقق المكوّن من 6 أرقام إلى<br>
+                                <span class="email-highlight" id="otpEmailDisplay"></span>
+                            </p>
+                        </div>
+
+                        <div class="otp-boxes" id="otpBoxes">
+                            <input class="otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]" id="otp0">
+                            <input class="otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]" id="otp1">
+                            <input class="otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]" id="otp2">
+                            <input class="otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]" id="otp3">
+                            <input class="otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]" id="otp4">
+                            <input class="otp-box" maxlength="1" inputmode="numeric" pattern="[0-9]" id="otp5">
+                        </div>
+
+                        <div class="otp-timer">
+                            الرمز صالح لـ <span id="timerDisplay">15:00</span>
+                        </div>
+
+                        <button class="reg-btn" id="verifyBtn" disabled>تحقق من الحساب ✓</button>
+
+                        <div class="resend-link">
+                            لم يصلك الرمز؟
+                            <button id="resendBtn" disabled onclick="resendCode()">إعادة الإرسال</button>
+                        </div>
+
+                        <div class="back-link">
+                            <button onclick="goBackToRegister()">← العودة للتسجيل</button>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div><!-- /reg-panels -->
+        </div><!-- /reg-card -->
+    </div>
+
+    <div id="toastContainer" class="toast-container"></div>
+    <script src="app.js"></script>
+    <script>
+        const API = 'http://localhost:5000/api';
+        let currentUserId = null;
+        let currentEmail = '';
+        let timerInterval = null;
+        let resendTimeout = null;
+
+        /* Email validation */
+        function validateEmail(input) {
+            const val = input.value.trim();
+            const hint = document.getElementById('emailHint');
+            const valid = val.endsWith('@students.hebron.edu');
+
+            if (val.length > 5 && !valid) {
+                input.classList.add('error');
+                hint.textContent = '⚠️ يجب أن ينتهي الإيميل بـ @students.hebron.edu';
+                hint.classList.add('err');
+            } else {
+                input.classList.remove('error');
+                hint.textContent = 'يجب أن ينتهي بـ @students.hebron.edu';
+                hint.classList.remove('err');
+            }
+        }
+
+        /* Register submit */
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('reg-name').value.trim();
+            const email = document.getElementById('reg-email').value.trim().toLowerCase();
+            const pass = document.getElementById('reg-pass').value;
+            const btn = document.getElementById('regBtn');
+
+            if (!name) { showToast('أدخل اسمك الكامل', 'error'); return; }
+            if (!email.endsWith('@students.hebron.edu')) {
+                showToast('يجب استخدام بريد جامعة الخليل (@students.hebron.edu)', 'error');
+                document.getElementById('reg-email').classList.add('error');
+                return;
+            }
+            if (pass.length < 6) { showToast('كلمة المرور 6 أحرف على الأقل', 'error'); return; }
+
+            btn.disabled = true;
+            btn.textContent = 'جاري التسجيل...';
+
+            try {
+                const res = await fetch(`${API}/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, password: pass }),
+                });
+                const data = await res.json();
+
+                if (!res.ok) {
+                    showToast(data.error || 'فشل التسجيل', 'error');
+                    btn.disabled = false;
+                    btn.textContent = 'إنشاء الحساب ←';
+                    return;
+                }
+
+                currentUserId = data.userId;
+                currentEmail = email;
+                slideToOTP(email);
+
+            } catch (err) {
+                showToast('خطأ في الاتصال بالخادم', 'error');
+                btn.disabled = false;
+                btn.textContent = 'إنشاء الحساب ←';
+            }
+        });
+
+        /* Slide to OTP */
+        function slideToOTP(email) {
+            document.getElementById('otpEmailDisplay').textContent = email;
+            document.getElementById('regPanels').classList.add('show-otp');
+            setTimeout(() => document.getElementById('otp0').focus(), 550);
+            startTimer(15 * 60);
+            startResendCountdown(60);
+        }
+
+        /* OTP input logic */
+        document.getElementById('otpBoxes').addEventListener('input', (e) => {
+            const boxes = [...document.querySelectorAll('.otp-box')];
+            const box = e.target;
+            const idx = boxes.indexOf(box);
+            box.value = box.value.replace(/\D/g, '');
+            if (box.value) { box.classList.add('filled'); if (idx < 5) boxes[idx + 1].focus(); }
+            else { box.classList.remove('filled'); }
+            document.getElementById('verifyBtn').disabled = boxes.map(b => b.value).join('').length < 6;
+        });
+
+        document.getElementById('otpBoxes').addEventListener('keydown', (e) => {
+            const boxes = [...document.querySelectorAll('.otp-box')];
+            const idx = boxes.indexOf(e.target);
+            if (e.key === 'Backspace' && !e.target.value && idx > 0) {
+                boxes[idx - 1].focus(); boxes[idx - 1].value = ''; boxes[idx - 1].classList.remove('filled');
+            }
+        });
+
+        document.getElementById('otpBoxes').addEventListener('paste', (e) => {
+            e.preventDefault();
+            const pasted = (e.clipboardData.getData('text') || '').replace(/\D/g, '').slice(0, 6);
+            const boxes = [...document.querySelectorAll('.otp-box')];
+            pasted.split('').forEach((ch, i) => { if (boxes[i]) { boxes[i].value = ch; boxes[i].classList.add('filled'); } });
+            (boxes[pasted.length] || boxes[5]).focus();
+            document.getElementById('verifyBtn').disabled = pasted.length < 6;
+        });
+
+        /* Verify */
+        document.getElementById('verifyBtn').addEventListener('click', async () => {
+            const boxes = [...document.querySelectorAll('.otp-box')];
+            const code = boxes.map(b => b.value).join('');
+            const btn = document.getElementById('verifyBtn');
+            if (code.length < 6) return;
+
+            btn.disabled = true; btn.textContent = 'جاري التحقق...';
+
+            try {
+                const res = await fetch(`${API}/auth/verify`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: currentUserId, code }),
+                });
+                const data = await res.json();
+
+                if (!res.ok) {
+                    boxes.forEach(b => { b.classList.add('error'); b.value = ''; b.classList.remove('filled'); });
+                    setTimeout(() => boxes.forEach(b => b.classList.remove('error')), 600);
+                    boxes[0].focus();
+                    document.getElementById('verifyBtn').disabled = true;
+                    showToast(data.error || 'رمز خاطئ أو منتهي الصلاحية', 'error');
+                    btn.disabled = false; btn.textContent = 'تحقق من الحساب ✓';
+                    return;
+                }
+
+                clearInterval(timerInterval);
+                showToast('✅ تم التحقق! جاري تحويلك...', 'success');
+                setTimeout(() => { location.href = 'login.html'; }, 1800);
+
+            } catch (err) {
+                showToast('خطأ في الاتصال', 'error');
+                btn.disabled = false; btn.textContent = 'تحقق من الحساب ✓';
+            }
+        });
+
+        /* Timer */
+        function startTimer(seconds) {
+            clearInterval(timerInterval);
+            let rem = seconds;
+            const el = document.getElementById('timerDisplay');
+            timerInterval = setInterval(() => {
+                rem--;
+                el.textContent = `${String(Math.floor(rem / 60)).padStart(2, '0')}:${String(rem % 60).padStart(2, '0')}`;
+                if (rem <= 0) { clearInterval(timerInterval); el.textContent = '00:00'; showToast('انتهت صلاحية الرمز', 'error'); }
+            }, 1000);
+        }
+
+        /* Resend countdown */
+        function startResendCountdown(seconds) {
+            const btn = document.getElementById('resendBtn');
+            btn.disabled = true;
+            let count = seconds;
+            resendTimeout = setInterval(() => {
+                count--;
+                btn.textContent = `إعادة الإرسال (${count}ث)`;
+                if (count <= 0) { clearInterval(resendTimeout); btn.disabled = false; btn.textContent = 'إعادة الإرسال'; }
+            }, 1000);
+        }
+
+        async function resendCode() {
+            if (!currentUserId) return;
+            try {
+                const res = await fetch(`${API}/auth/resend`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: currentUserId }),
+                });
+                const data = await res.json();
+                if (!res.ok) { showToast(data.error || 'فشل إعادة الإرسال', 'error'); return; }
+                showToast('✅ تم إرسال رمز جديد', 'success');
+                startTimer(15 * 60); startResendCountdown(60);
+                document.querySelectorAll('.otp-box').forEach(b => { b.value = ''; b.classList.remove('filled'); });
+                document.getElementById('verifyBtn').disabled = true;
+                document.getElementById('otp0').focus();
+            } catch (e) { showToast('فشل الاتصال', 'error'); }
+        }
+
+        /* Back */
+        function goBackToRegister() {
+            clearInterval(timerInterval); clearInterval(resendTimeout);
+            document.getElementById('regPanels').classList.remove('show-otp');
+            document.getElementById('regBtn').disabled = false; document.getElementById('regBtn').textContent = 'إنشاء الحساب ←';
+            document.querySelectorAll('.otp-box').forEach(b => { b.value = ''; b.classList.remove('filled', 'error'); });
+            document.getElementById('verifyBtn').disabled = true;
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إضافة كتاب - تبادل الكتب</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<!-- Floating Chatbot Button -->
+<div class="chatbot-bubble" onclick="toggleChatbot()">
+    🤖
+</div>
+
+<!-- Chat Window -->
+<div class="chatbot-box hidden" id="chatbotBox">
+    <div class="chatbot-header">
+        <span>Live Assistant</span>
+        <button onclick="toggleChatbot()">✖</button>
+    </div>
+
+    <div class="chatbot-messages" id="chatbotMessages">
+        <div class="bot-msg">👋 اسألني عن أي كتاب موجود في النظام</div>
+    </div>
+
+    <div class="chatbot-input">
+        <input type="text" id="chatbotInput" placeholder="اكتب سؤالك...">
+        <button onclick="sendChatbotMessage()">إرسال</button>
+    </div>
+</div>
+<body>
+    <!-- Navbar injected by navbar.js -->
+
+    <div class="page-container">
+        <div class="page-header">
+            <h1>📚 إضافة كتاب للتبادل</h1>
+            <p>أدرج كتابك الجامعي للتبادل مع الطلاب الآخرين</p>
+        </div>
+
+        <div class="form-container">
+            <form id="addBookForm" class="book-form">
+                <div class="form-group">
+                    <label for="title">عنوان الكتاب *</label>
+                    <input type="text" id="title" name="title" placeholder="أدخل عنوان الكتاب" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">الوصف *</label>
+                    <textarea id="description" name="description" placeholder="صف حالة الكتاب والتفاصيل" rows="5" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="condition">الحالة *</label>
+                    <select id="condition" name="condition" required>
+                        <option value="">اختر الحالة</option>
+                        <option value="New">جديد</option>
+                        <option value="Used">مستعمل</option>
+                    </select>
+                </div>
+
+                <!-- Multi-image upload -->
+                <div class="form-group">
+                    <label>صور الكتاب (اختياري — حتى 5 صور)</label>
+                    <div class="image-upload-area" id="imageUploadArea">
+                        <input type="file" id="bookImages" name="images" accept="image/*" multiple>
+                        <div class="upload-placeholder" onclick="document.getElementById('bookImages').click()">
+                            <span class="upload-icon">📷</span>
+                            <p>اضغط لاختيار صور من جهازك</p>
+                            <small>JPG, PNG, WEBP — حتى 5MB لكل صورة — حتى 5 صور</small>
+                        </div>
+                    </div>
+
+                    <!-- Preview grid -->
+                    <div id="imagePreviewGrid" class="image-preview-grid hidden"></div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary" id="submitBookBtn">إضافة الكتاب</button>
+                    <a href="my-books.html" class="btn btn-secondary">إلغاء</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- إشعارات الرسائل -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script src="navbar.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

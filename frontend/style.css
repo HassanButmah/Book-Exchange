@@ -17,21 +17,21 @@ a {
 }
 
 :root {
-    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    --primary-color: #667eea;
-    --primary-dark: #5568d3;
-    --secondary-color: #f093fb;
-    --success-color: #06d6a0;
+    --primary-gradient: linear-gradient(135deg, #1B5E20 0%, #0B5F1B 100%);
+    --primary-color: #1B5E20;
+    --primary-dark: #0B5F1B;
+    --secondary-color: #FFD700;
+    --success-color: #1B5E20;
     --error-color: #ef476f;
-    --warning-color: #ffd166;
-    --light-bg: #f7f9fc;
+    --warning-color: #FFC107;
+    --light-bg: #F5F5F5;
     --card-bg: #ffffff;
-    --border-color: #e0e7ff;
+    --border-color: #E8E8E8;
     --text-primary: #1a202c;
     --text-secondary: #718096;
-    --shadow-sm: 0 2px 8px rgba(102, 126, 234, 0.08);
-    --shadow-md: 0 8px 24px rgba(102, 126, 234, 0.12);
-    --shadow-lg: 0 20px 48px rgba(102, 126, 234, 0.15);
+    --shadow-sm: 0 2px 8px rgba(27, 94, 32, 0.08);
+    --shadow-md: 0 8px 24px rgba(27, 94, 32, 0.12);
+    --shadow-lg: 0 20px 48px rgba(27, 94, 32, 0.15);
     --transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -42,7 +42,7 @@ html {
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif, 'Vazirmatn', 'Arial';
-    background: linear-gradient(135deg, #f7f9fc 0%, #f0f4ff 100%);
+    background: linear-gradient(135deg, #F5F5F5 0%, #EEEEEE 100%);
     color: var(--text-primary);
     line-height: 1.8;
     overflow-x: hidden;
@@ -138,7 +138,7 @@ body {
     font-weight:700;
     text-decoration:none;
 
-    background: linear-gradient(135deg,#667eea,#764ba2);
+    background: linear-gradient(135deg,#1B5E20,#0B5F1B);
     -webkit-background-clip:text;
     background-clip: text;
     -webkit-text-fill-color:transparent;
@@ -170,8 +170,8 @@ body {
 
 /* Hover effect */
 .nav-links a:hover{
-    background:#f3f4ff;
-    color:#5b5bd6;
+    background:#d4f1ed;
+    color:#1B5E20;
     transform: translateY(-2px);
 }
 
@@ -183,7 +183,7 @@ body {
     left:50%;
     width:0;
     height:2px;
-    background:#667eea;
+    background:#1B5E20;
     transition:0.3s;
     transform:translateX(-50%);
 }
@@ -3072,4 +3072,4 @@ input::placeholder {
         border-radius: 12px;
     }
 }
-
+

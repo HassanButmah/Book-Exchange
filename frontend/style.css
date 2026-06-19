@@ -1951,13 +1951,13 @@ input::placeholder {
     background:white;
 }
 
-.chat-header{
-    padding:20px;
-    border-bottom:1px solid #eee;
-    background:white;
-    display:flex;
-    align-items:center;
-    gap:15px;
+.chat-header {
+    padding: 16px 20px;
+    border-bottom: none;
+    background: linear-gradient(135deg, #11753b, #0d5e30);
+    display: flex;
+    align-items: center;
+    gap: 12px;
 }
 
 .chat-user-info {
@@ -1967,15 +1967,15 @@ input::placeholder {
 }
 
 .chat-user-info h2 {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: var(--text-primary);
+    font-size: 1rem;
+    font-weight: 700;
+    color: #ffffff !important;
     margin: 0;
 }
 
 .chat-user-info p {
-    color: var(--text-secondary);
-    font-size: 0.8rem;
+    color: rgba(255,255,255,0.8) !important;
+    font-size: 0.78rem;
     margin: 0;
 }
 
@@ -2007,37 +2007,34 @@ input::placeholder {
     background: #f6fbf7;
 }
 
-.message{
-    width:100%;
-    display:flex;
+/* Use text-align + inline-block for reliable RTL positioning */
+.message {
+    width: 100%;
+    display: block;
+    padding: 0;
 }
 
-/* In RTL pages, flex-end = visual LEFT. Use margin trick instead. */
+/* Sent = physical RIGHT side */
 .message.sent {
-    justify-content: flex-start;  /* flex-start = visual RIGHT in RTL */
+    text-align: right;
 }
 
+/* Received = physical LEFT side */
 .message.received {
-    justify-content: flex-end;    /* flex-end = visual LEFT in RTL */
+    text-align: left;
 }
 
-.message-content{
-    display:inline-block;
-
-    max-width:70%;
-    min-width:120px;
-
-    padding:12px 18px;
-
-    white-space:normal;
-    word-wrap:break-word;
-    overflow-wrap:break-word;
-
-    text-align:right;
-    direction:rtl;
-
-    line-height:1.6;
-    
+.message-content {
+    display: inline-block;
+    max-width: 68%;
+    min-width: 80px;
+    padding: 10px 14px;
+    white-space: normal;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    line-height: 1.55;
+    text-align: right;
+    direction: rtl;
 }
 
 .message-content p{
@@ -2045,24 +2042,28 @@ input::placeholder {
     display:block;
 }
 
-.message.sent .message-content{
+.message.sent .message-content {
     background: linear-gradient(135deg, #11753b, #0d5e30);
     color: #fff;
     border-radius: 18px 18px 4px 18px;
+    box-shadow: 0 2px 10px rgba(17,117,59,0.28);
 }
 
-.message.received .message-content{
+.message.received .message-content {
     background: #fff;
     color: #1a202c;
     border-radius: 18px 18px 18px 4px;
     border: 1px solid #e2ece6;
     box-shadow: 0 2px 8px rgba(0,0,0,0.06);
 }
+
+.message-content p { margin: 0; }
+
 .message-content small {
     display: block;
-    opacity: 0.8;
-    font-size: 0.75rem;
-    margin-top: 0.25rem;
+    font-size: 0.72rem;
+    margin-top: 4px;
+    opacity: 0.75;
 }
 
 .delete-msg-btn {
@@ -2095,11 +2096,13 @@ input::placeholder {
     z-index: 1;
 }
 
+/* ── FORM: horizontal layout - textarea RIGHT, send button LEFT (RTL) ── */
 #messageForm {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     gap: 10px;
     width: 100%;
+    align-items: flex-end;
 }
 
 #messageInput {
@@ -2125,23 +2128,26 @@ input::placeholder {
 }
 
 .send-btn {
-    width: 100%;
+    width: auto;
+    min-width: 90px;
     border: none;
     border-radius: 12px;
-    padding: 11px 20px;
+    padding: 11px 18px;
     background: linear-gradient(135deg, #11753b, #0d5e30);
     color: white;
     font-weight: 700;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     font-family: inherit;
     cursor: pointer;
     transition: opacity 0.2s, transform 0.15s;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 6px;
+    flex-shrink: 0;
+    align-self: flex-end;
+    height: 48px;
 }
-
 .send-btn:hover { opacity: 0.88; transform: translateY(-1px); }
 .send-btn:active {
     transform: translateY(0);
@@ -3295,7 +3301,54 @@ input::placeholder {
 .preview-num { background: rgba(17,117,59,0.85) !important; }
 .btn-edit { background: linear-gradient(135deg, #11753b 0%, #1da05a 100%) !important; }
 
+/* ── Final overrides for messages page ── */
+#chatUserName { color: #ffffff !important; font-size: 1rem !important; font-weight: 700 !important; }
+#chatUserEmail { color: rgba(255,255,255,0.8) !important; font-size: 0.78rem !important; }
+
+/* Input area container */
+.message-input-area {
+    flex-shrink: 0 !important;
+    padding: 14px 16px !important;
+    border-top: 1px solid #e2ece6 !important;
+    background: white !important;
+}
+
+/* Make sure message-input-area form overrides are enforced */
+#messageForm {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 10px !important;
+    align-items: flex-end !important;
+}
+#messageInput {
+    flex: 1 !important;
+    min-height: 48px !important;
+    display: block !important;
+    border: 1.5px solid #d1e8d9 !important;
+    border-radius: 12px !important;
+    padding: 12px 14px !important;
+    background: #fafff9 !important;
+    font-size: 0.95rem !important;
+    font-family: inherit !important;
+    resize: none !important;
+    box-sizing: border-box !important;
+    direction: rtl !important;
+}
+#messageInput:focus {
+    border-color: #11753b !important;
+    box-shadow: 0 0 0 3px rgba(17,117,59,0.12) !important;
+    outline: none !important;
+}
+button[type="submit"].send-btn {
+    width: auto !important;
+    min-width: 85px !important;
+    height: 48px !important;
+    flex-shrink: 0 !important;
+    background: linear-gradient(135deg, #11753b, #0d5e30) !important;
+}
+
 @media (max-width: 768px) {
     .messages-layout { grid-template-columns: 1fr; height: auto; }
     .messages-panel, .conversations-panel { min-height: 350px; }
 }
+

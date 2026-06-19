@@ -147,8 +147,11 @@
         navbar.innerHTML = `
             <div class="nav-container">
                 <a href="marketplace.html" class="nav-logo">
-                    ${ICONS.books}
-                    <span>تبادل الكتب</span>
+                    <img src="images/hebron-logo.png" alt="شعار جامعة الخليل" class="nav-logo-img">
+                    <span class="nav-logo-text">
+                        <span class="nav-logo-university">جامعة الخليل</span>
+                        <span class="nav-logo-platform">تبادل الكتب</span>
+                    </span>
                 </a>
 
                 <!-- Mobile toggle -->

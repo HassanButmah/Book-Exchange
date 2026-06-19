@@ -1,5 +1,7 @@
 const jwt = require('jsonwebtoken');
 
+const JWT_SECRET = process.env.JWT_SECRET || 'hu_book_exchange_fallback_secret_2025_very_long_key';
+
 /**
  * authMiddleware – verifies the Bearer JWT.
  * If `required` is false the middleware still attaches req.user when a
@@ -19,7 +21,7 @@ const authMiddleware = (req, res, next) => {
             return next();
         }
 
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = jwt.verify(token, JWT_SECRET);
         req.user = decoded;
         next();
     } catch (err) {

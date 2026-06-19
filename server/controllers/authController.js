@@ -4,6 +4,9 @@ const nodemailer = require('nodemailer');
 const pool = require('../db');
 require('dotenv').config();
 
+// Guaranteed-to-exist JWT secret (env var preferred, hardcoded fallback for Vercel)
+const JWT_SECRET = process.env.JWT_SECRET || 'hu_book_exchange_fallback_secret_2025_very_long_key';
+
 // Email configuration
 const transporter = nodemailer.createTransport({
     service: process.env.EMAIL_SERVICE || 'gmail',
@@ -189,7 +192,7 @@ const login = async (req, res) => {
         // Generate JWT token
         const token = jwt.sign(
             { id: user.id, email: user.email, name: user.name, role: user.role || 'user' },
-            process.env.JWT_SECRET,
+            JWT_SECRET,
             { expiresIn: '7d' }
         );
 

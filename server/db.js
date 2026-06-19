@@ -1,20 +1,15 @@
 const { Pool } = require('pg');
 require('dotenv').config();
 
-const isProduction = process.env.NODE_ENV === 'production' || process.env.DATABASE_URL;
+// Use DATABASE_URL if set, otherwise fall back to hardcoded Neon connection
+const NEON_URL = 'postgresql://neondb_owner:npg_p0rgdzW4ecyD@ep-divine-boat-atsz6rxj-pooler.c-9.us-east-1.aws.neon.tech/neondb?sslmode=require';
+const connectionString = process.env.DATABASE_URL || NEON_URL;
 
-const pool = isProduction
-    ? new Pool({
-        connectionString: process.env.DATABASE_URL,
-        ssl: { rejectUnauthorized: false },
-    })
-    : new Pool({
-        user: process.env.DB_USER,
-        password: process.env.DB_PASSWORD,
-        host: process.env.DB_HOST,
-        port: process.env.DB_PORT || 5432,
-        database: process.env.DB_NAME,
-    });
+const pool = new Pool({
+    connectionString,
+    ssl: { rejectUnauthorized: false },
+});
+
 
 pool.on('error', (err) => {
     console.error('Unexpected error on idle client', err);

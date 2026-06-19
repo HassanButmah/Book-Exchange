@@ -4,7 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>لوحة تحكم المدير - تبادل الكتب</title>
-    <link rel="stylesheet" href="style.css">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <link rel="stylesheet" href="style.css?v=3">
     <style>
         /* ── Admin Panel Overrides ── */
         .admin-shell { max-width: 1200px; margin: 0 auto; padding: 24px 16px; }
@@ -119,6 +122,12 @@
             <div class="a-stat"><div class="a-stat-num red" id="sHidden">—</div><div class="a-stat-label"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ef476f" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg> مخفية</div></div>
             <div class="a-stat"><div class="a-stat-num" id="sMessages">—</div><div class="a-stat-label"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg> الرسائل</div></div>
         </div>
+        <div style="text-align:left;margin-top:-8px;margin-bottom:8px;">
+            <button onclick="refreshStats()" style="background:none;border:1px solid #1B5E20;color:#1B5E20;border-radius:8px;padding:5px 14px;cursor:pointer;font-size:0.82rem;font-family:inherit;font-weight:600;display:inline-flex;align-items:center;gap:6px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                تحديث
+            </button>
+        </div>
 
         <!-- ── TABS ── -->
         <div class="admin-tabs">
@@ -196,8 +205,8 @@
 
 <div id="toastContainer" class="toast-container"></div>
 
-<script src="navbar.js"></script>
-<script src="app.js"></script>
+<script src="navbar.js?v=3"></script>
+<script src="app.js?v=3"></script>
 <script>
 const IS_LOCAL = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
 const API = IS_LOCAL ? 'http://localhost:5000/api' : '/api';
@@ -406,41 +415,35 @@ function escH(t) {
 }
 
 /* ── INIT ── */
+async function refreshStats() {
+    const tok = localStorage.getItem('token');
+    if (!tok) { location.href = 'login.html'; return; }
+    try {
+        const res = await fetch(`${API}/admin/stats`, { headers: { Authorization: `Bearer ${tok}` } });
+        if (res.status === 401) { location.href = 'login.html'; return; }
+        if (res.status === 403) { location.href = 'marketplace.html'; return; }
+        if (!res.ok) {
+            document.getElementById('sUsers').textContent = 'ERR';
+            return;
+        }
+        const d = await res.json();
+        document.getElementById('sUsers').textContent    = d.totalUsers    ?? 0;
+        document.getElementById('sBooks').textContent    = d.totalBooks    ?? 0;
+        document.getElementById('sAvail').textContent    = d.available     ?? 0;
+        document.getElementById('sReserved').textContent = d.reserved      ?? 0;
+        document.getElementById('sHidden').textContent   = d.unavailable   ?? 0;
+        document.getElementById('sMessages').textContent = d.totalMessages ?? 0;
+    } catch(e) {
+        document.getElementById('sUsers').textContent = '!';
+        console.error('refreshStats error:', e);
+    }
+}
+
 window.addEventListener('DOMContentLoaded', async () => {
     const tok = localStorage.getItem('token');
     if (!tok) { location.href = 'login.html'; return; }
 
-    // Verify admin via server AND fill stats from the same response
-    try {
-        const check = await fetch(`${API}/admin/stats`, {
-            headers: { Authorization: `Bearer ${tok}` }
-        });
-
-        if (check.status === 401) { location.href = 'login.html'; return; }
-        if (check.status === 403) {
-            showToast('ليس لديك صلاحيات المدير', 'error');
-            setTimeout(() => { location.href = 'marketplace.html'; }, 1800);
-            return;
-        }
-
-        if (check.ok) {
-            // Populate stats immediately from this response
-            const d = await check.json();
-            document.getElementById('sUsers').textContent    = d.totalUsers    ?? '0';
-            document.getElementById('sBooks').textContent    = d.totalBooks    ?? '0';
-            document.getElementById('sAvail').textContent    = d.available     ?? '0';
-            document.getElementById('sReserved').textContent = d.reserved      ?? '0';
-            document.getElementById('sHidden').textContent   = d.unavailable   ?? '0';
-            document.getElementById('sMessages').textContent = d.totalMessages ?? '0';
-        } else {
-            showToast(`خطأ في الخادم: ${check.status}`, 'error');
-        }
-    } catch (e) {
-        console.warn('Admin init error:', e.message);
-        showToast('تعذّر الاتصال بالخادم', 'error');
-    }
-
-    // Load tables in parallel (books + users)
+    await refreshStats();
     await Promise.all([loadBooks(), loadUsers()]);
 });
 </script>

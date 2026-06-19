@@ -208,21 +208,32 @@ function switchTab(name) {
 async function loadStats() {
     try {
         const res = await fetch(`${API}/admin/stats`, { headers: { Authorization: `Bearer ${token()}` } });
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            showToast(`خطأ في تحميل الإحصائيات: ${err.error || res.status}`, 'error');
+            return;
+        }
         const d = await res.json();
-        document.getElementById('sUsers').textContent    = d.totalUsers    ?? '—';
-        document.getElementById('sBooks').textContent    = d.totalBooks    ?? '—';
-        document.getElementById('sAvail').textContent    = d.available     ?? '—';
-        document.getElementById('sReserved').textContent = d.reserved      ?? '—';
-        document.getElementById('sHidden').textContent   = d.unavailable   ?? '—';
-        document.getElementById('sMessages').textContent = d.totalMessages ?? '—';
-    } catch(e) { console.error(e); }
+        document.getElementById('sUsers').textContent    = d.totalUsers    ?? '0';
+        document.getElementById('sBooks').textContent    = d.totalBooks    ?? '0';
+        document.getElementById('sAvail').textContent    = d.available     ?? '0';
+        document.getElementById('sReserved').textContent = d.reserved      ?? '0';
+        document.getElementById('sHidden').textContent   = d.unavailable   ?? '0';
+        document.getElementById('sMessages').textContent = d.totalMessages ?? '0';
+    } catch(e) {
+        console.error('loadStats error:', e);
+        showToast('تعذّر الاتصال بالخادم', 'error');
+    }
 }
 
 /* ── BOOKS ── */
 async function loadBooks() {
-    const res  = await fetch(`${API}/admin/books`, { headers: { Authorization: `Bearer ${token()}` } });
-    allBooks   = await res.json();
-    renderBooks(allBooks);
+    try {
+        const res = await fetch(`${API}/admin/books`, { headers: { Authorization: `Bearer ${token()}` } });
+        if (!res.ok) { showToast(`خطأ تحميل الكتب: ${res.status}`, 'error'); return; }
+        allBooks = await res.json();
+        renderBooks(allBooks);
+    } catch(e) { showToast('تعذّر تحميل الكتب', 'error'); return; }
     // Attach event listener for book actions
     const booksTbody = document.getElementById('booksBody');
     booksTbody.addEventListener('click', async (e) => {
@@ -295,9 +306,12 @@ async function deleteBook(id) {
 
 /* ── USERS ── */
 async function loadUsers() {
-    const res = await fetch(`${API}/admin/users`, { headers: { Authorization: `Bearer ${token()}` } });
-    allUsers  = await res.json();
-    renderUsers(allUsers);
+    try {
+        const res = await fetch(`${API}/admin/users`, { headers: { Authorization: `Bearer ${token()}` } });
+        if (!res.ok) { showToast(`خطأ تحميل المستخدمين: ${res.status}`, 'error'); return; }
+        allUsers = await res.json();
+        renderUsers(allUsers);
+    } catch(e) { showToast('تعذّر تحميل المستخدمين', 'error'); return; }
     // Attach event listener for user actions
     const usersTbody = document.getElementById('usersBody');
     usersTbody.addEventListener('click', async (e) => {
@@ -385,11 +399,24 @@ function escH(t) {
 /* ── INIT ── */
 window.addEventListener('DOMContentLoaded', async () => {
     const tok = localStorage.getItem('token');
-    if (!tok) { location.href='login.html'; return; }
+    if (!tok) { location.href = 'login.html'; return; }
 
-    // Check admin role
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    if (user.role !== 'admin') { location.href='index.html'; return; }
+    // Verify admin role via server (don't trust localStorage alone)
+    try {
+        const check = await fetch(`${API}/admin/stats`, {
+            headers: { Authorization: `Bearer ${tok}` }
+        });
+        if (check.status === 401) { location.href = 'login.html'; return; }
+        if (check.status === 403) {
+            showToast('ليس لديك صلاحيات المدير', 'error');
+            setTimeout(() => { location.href = 'marketplace.html'; }, 1500);
+            return;
+        }
+        if (!check.ok) throw new Error('server error');
+    } catch (e) {
+        // Network error - still try to load
+        console.warn('Admin verify failed, trying anyway:', e.message);
+    }
 
     await Promise.all([loadStats(), loadBooks(), loadUsers()]);
 });

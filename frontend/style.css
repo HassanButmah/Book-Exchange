@@ -17,17 +17,20 @@ a {
 }
 
 :root {
-    --primary-gradient: linear-gradient(135deg, #1B5E20 0%, #0B5F1B 100%);
-    --primary-color: #1B5E20;
-    --primary-dark: #0B5F1B;
-    --secondary-color: #FFD700;
-    --success-color: #1B5E20;
+    --primary: #11753b;
+    --secondary: #2e8b57;
+    --accent: #8fbc8f;
+    --background: #f5f5f5;
+    --text: #1a202c;
+    --primary-gradient: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    --primary-dark: #0b5f1b;
+    --success-color: var(--primary);
     --error-color: #ef476f;
-    --warning-color: #FFC107;
-    --light-bg: #F5F5F5;
+    --warning-color: #ff9800;
+    --light-bg: var(--background);
     --card-bg: #ffffff;
-    --border-color: #E8E8E8;
-    --text-primary: #1a202c;
+    --border-color: #e8e8e8;
+    --text-primary: var(--text);
     --text-secondary: #718096;
     --shadow-sm: 0 2px 8px rgba(27, 94, 32, 0.08);
     --shadow-md: 0 8px 24px rgba(27, 94, 32, 0.12);
@@ -138,7 +141,7 @@ body {
     font-weight:700;
     text-decoration:none;
 
-    background: linear-gradient(135deg,#1B5E20,#0B5F1B);
+    background: var(--primary-gradient);
     -webkit-background-clip:text;
     background-clip: text;
     -webkit-text-fill-color:transparent;
@@ -704,7 +707,7 @@ input::placeholder {
 }
 
 .hero-content h1{
-    color:#11753b;
+    color:var(--primary);
     font-size:70px;
     font-weight:800;
     margin-bottom:20px;
@@ -758,7 +761,7 @@ input::placeholder {
 }
 
 .stat-box h3{
-    color:#11753b;
+    color:var(--primary);
     font-size:42px;
     margin-bottom:10px;
 }
@@ -771,7 +774,7 @@ input::placeholder {
 .hero-btn{
     display:inline-block;
 
-    background:#11753b;
+    background:var(--primary);
     color:white;
 
     padding:18px 70px;
@@ -1153,12 +1156,12 @@ input::placeholder {
 }
 
 .demo-info {
-    background: #fef3c7;
+    background: #e8f5e9;
     padding: 1rem;
     border-radius: 0.5rem;
     margin: 1rem 0;
     font-size: 0.9rem;
-    border-left: 4px solid #f59e0b;
+    border-left: 4px solid var(--accent);
 }
 
 .demo-info p {
@@ -1264,7 +1267,7 @@ input::placeholder {
 .search-input:focus,
 .filter-select:focus {
     outline: none;
-    border-color: var(--primary-color);
+    border-color: var(--primary);
 }
 
 /* ==================== BOOKS GRID ==================== */
@@ -1375,12 +1378,12 @@ input::placeholder {
 }
 
 .badge-new {
-    background: linear-gradient(135deg, #06d6a0 0%, #06a494 100%);
+    background: var(--primary-gradient);
     color: white;
 }
 
 .badge-used {
-    background: linear-gradient(135deg, #ffd166 0%, #ffb703 100%);
+    background: var(--warning-color);
     color: white;
 }
 
@@ -1648,8 +1651,8 @@ input::placeholder {
 
 .filter-select:focus {
     outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(17, 117, 59, 0.1);
 }
 
 /* ==================== TOAST NOTIFICATIONS ==================== */

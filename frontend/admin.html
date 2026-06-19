@@ -33,7 +33,7 @@
             background-clip: text;
         }
         .a-stat-num.green  { background: linear-gradient(135deg,#1B5E20,#0B5F1B); -webkit-background-clip:text; background-clip:text; }
-        .a-stat-num.orange { background: linear-gradient(135deg,#FFD700,#FFC107); -webkit-background-clip:text; background-clip:text; }
+        .a-stat-num.orange { background: linear-gradient(135deg,#11753b,#11753b); -webkit-background-clip:text; background-clip:text; }
         .a-stat-num.red    { background: linear-gradient(135deg,#ef476f,#c0392b); -webkit-background-clip:text; background-clip:text; }
         .a-stat-num.blue   { background: linear-gradient(135deg,#1B5E20,#0B5F1B);  -webkit-background-clip:text; background-clip:text; }
         .a-stat-label { font-size: .85rem; color: #718096; margin-top: 6px; font-weight: 600; }
@@ -222,6 +222,23 @@ async function loadBooks() {
     const res  = await fetch(`${API}/admin/books`, { headers: { Authorization: `Bearer ${token()}` } });
     allBooks   = await res.json();
     renderBooks(allBooks);
+    // Attach event listener for book actions
+    const booksTbody = document.getElementById('booksBody');
+    booksTbody.addEventListener('click', async (e) => {
+        const button = e.target.closest('button[data-action]');
+        if (!button) return;
+
+        const action = button.dataset.action;
+        const id = parseInt(button.dataset.bookId, 10);
+        if (isNaN(id)) return;
+
+        if (action === 'change-status') {
+            const status = button.dataset.status;
+            await changeBookStatus(id, status);
+        } else if (action === 'delete-book') {
+            confirmAction('حذف الكتاب نهائياً؟', () => deleteBook(id));
+        }
+    });
 }
 
 function filterBooks() {
@@ -238,24 +255,26 @@ function renderBooks(books) {
     const statusMap = { available:'متاح', reserved:'محجوز', unavailable:'غير متوفر' };
     const statusCls = { available:'available', reserved:'reserved', unavailable:'unavailable' };
 
-    tbody.innerHTML = books.map((b, i) => `
-        <tr>
-            <td style="color:#a0aec0;font-size:.82rem;">${i+1}</td>
-            <td><strong>${escH(b.title)}</strong><br><small style="color:#a0aec0">${escH(b.description?.substring(0,40) || '')}...</small></td>
-            <td>${escH(b.owner_name)}<br><small style="color:#a0aec0"><bdo dir="ltr">${escH(b.owner_email||'')}</bdo></small></td>
-            <td><span class="a-badge ${statusCls[b.status]||'available'}">${statusMap[b.status]||'متاح'}</span></td>
-            <td>${b.is_visible ? '🟢 ظاهر' : '🔴 مخفي'}</td>
-            <td style="font-size:.8rem;color:#718096;">${new Date(b.updated_at).toLocaleDateString('ar-SA')}</td>
-            <td>
-                <div class="a-actions">
-                    ${b.status !== 'available'   ? `<button class="a-btn a-btn-ok"      onclick="changeBookStatus(${b.id},'available')">✅ إتاحة</button>` : ''}
-                    ${b.status !== 'reserved'    ? `<button class="a-btn a-btn-warn"    onclick="changeBookStatus(${b.id},'reserved')">🔒 حجز</button>` : ''}
-                    ${b.status !== 'unavailable' ? `<button class="a-btn a-btn-purple"  onclick="changeBookStatus(${b.id},'unavailable')">🚫 إخفاء</button>` : ''}
-                    <button class="a-btn a-btn-danger" onclick="confirmAction('حذف الكتاب نهائياً؟',()=>deleteBook(${b.id}))">🗑️ حذف</button>
-                </div>
-            </td>
-        </tr>
-    `).join('');
+    tbody.innerHTML = books.map((b, i) => {
+        return `
+            <tr>
+                <td style="color:#a0aec0;font-size:.82rem;">${i+1}</td>
+                <td><strong>${escH(b.title)}</strong><br><small style="color:#a0aec0">${escH(b.description?.substring(0,40) || '')}...</small></td>
+                <td>${escH(b.owner_name)}<br><small style="color:#a0aec0"><bdo dir="ltr">${escH(b.owner_email||'')}</bdo></small></td>
+                <td><span class="a-badge ${statusCls[b.status]||'available'}">${statusMap[b.status]||'متاح'}</span></td>
+                <td>${b.is_visible ? '🟢 ظاهر' : '🔴 مخفي'}</td>
+                <td style="font-size:.8rem;color:#718096;">${new Date(b.updated_at).toLocaleDateString('ar-SA')}</td>
+                <td>
+                    <div class="a-actions">
+                        ${b.status !== 'available'   ? `<button class="a-btn a-btn-ok"      data-action="change-status" data-book-id="${escH(b.id)}" data-status="available">✅ إتاحة</button>` : ''}
+                        ${b.status !== 'reserved'    ? `<button class="a-btn a-btn-warn"    data-action="change-status" data-book-id="${escH(b.id)}" data-status="reserved">🔒 حجز</button>` : ''}
+                        ${b.status !== 'unavailable' ? `<button class="a-btn a-btn-purple"  data-action="change-status" data-book-id="${escH(b.id)}" data-status="unavailable">🚫 إخفاء</button>` : ''}
+                        <button class="a-btn a-btn-danger" data-action="delete-book" data-book-id="${escH(b.id)}">🗑️ حذف</button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }).join('');
 }
 
 async function changeBookStatus(id, status) {
@@ -278,6 +297,24 @@ async function loadUsers() {
     const res = await fetch(`${API}/admin/users`, { headers: { Authorization: `Bearer ${token()}` } });
     allUsers  = await res.json();
     renderUsers(allUsers);
+    // Attach event listener for user actions
+    const usersTbody = document.getElementById('usersBody');
+    usersTbody.addEventListener('click', async (e) => {
+        const button = e.target.closest('button[data-action]');
+        if (!button) return;
+
+        const action = button.dataset.action;
+        const id = parseInt(button.dataset.userId, 10);
+        if (isNaN(id)) return;
+
+        if (action === 'toggle-verify') {
+            await toggleVerify(id);
+        } else if (action === 'delete-user') {
+            const user = allUsers.find(u => u.id === id);
+            const userName = user ? user.name : 'المستخدم';
+            confirmAction(`حذف المستخدم ${userName} وجميع بياناته؟`, () => deleteUser(id));
+        }
+    });
 }
 
 function filterUsers() {
@@ -291,25 +328,27 @@ function renderUsers(users) {
     const tbody = document.getElementById('usersBody');
     if (!users.length) { tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;padding:24px;color:#718096;">لا يوجد مستخدمون</td></tr>`; return; }
 
-    tbody.innerHTML = users.map((u, i) => `
-        <tr>
-            <td style="color:#a0aec0;font-size:.82rem;">${i+1}</td>
-            <td><strong>${escH(u.name)}</strong></td>
-            <td><bdo dir="ltr" style="font-size:.85rem;">${escH(u.email)}</bdo></td>
-            <td><span class="a-badge ${u.role === 'admin' ? 'admin-role':'user-role'}">${u.role === 'admin' ? '🛡️ مدير':'👤 مستخدم'}</span></td>
-            <td><span class="a-badge ${u.is_verified ? 'verified':'unverified'}">${u.is_verified ? '✅ مفعّل':'❌ غير مفعّل'}</span></td>
-            <td style="text-align:center;font-weight:700;">${u.book_count}</td>
-            <td style="font-size:.8rem;color:#718096;">${new Date(u.created_at).toLocaleDateString('ar-SA')}</td>
-            <td>
-                <div class="a-actions">
-                    <button class="a-btn ${u.is_verified ? 'a-btn-warn':'a-btn-ok'}" onclick="toggleVerify(${u.id})">
-                        ${u.is_verified ? '🔒 تعطيل':'✅ تفعيل'}
-                    </button>
-                    ${u.role !== 'admin' ? `<button class="a-btn a-btn-danger" onclick="confirmAction('حذف المستخدم ${escH(u.name)} وجميع بياناته؟',()=>deleteUser(${u.id}))">🗑️ حذف</button>` : ''}
-                </div>
-            </td>
-        </tr>
-    `).join('');
+    tbody.innerHTML = users.map((u, i) => {
+        return `
+            <tr>
+                <td style="color:#a0aec0;font-size:.82rem;">${i+1}</td>
+                <td><strong>${escH(u.name)}</strong></td>
+                <td><bdo dir="ltr" style="font-size:.85rem;">${escH(u.email)}</bdo></td>
+                <td><span class="a-badge ${u.role === 'admin' ? 'admin-role':'user-role'}">${u.role === 'admin' ? '🛡️ مدير':'👤 مستخدم'}</span></td>
+                <td><span class="a-badge ${u.is_verified ? 'verified':'unverified'}">${u.is_verified ? '✅ مفعّل':'❌ غير مفعّل'}</span></td>
+                <td style="text-align:center;font-weight:700;">${u.book_count}</td>
+                <td style="font-size:.8rem;color:#718096;">${new Date(u.created_at).toLocaleDateString('ar-SA')}</td>
+                <td>
+                    <div class="a-actions">
+                        <button class="a-btn ${u.is_verified ? 'a-btn-warn':'a-btn-ok'}" data-action="toggle-verify" data-user-id="${escH(u.id)}" data-is-verified="${escH(u.is_verified)}">
+                            ${u.is_verified ? '🔒 تعطيل':'✅ تفعيل'}
+                        </button>
+                        ${u.role !== 'admin' ? `<button class="a-btn a-btn-danger" data-action="delete-user" data-user-id="${escH(u.id)}">🗑️ حذف</button>` : ''}
+                    </div>
+                </td>
+            </tr>
+        `;
+    }).join('');
 }
 
 async function toggleVerify(id) {

@@ -1,5 +1,14 @@
 // ==================== CONFIGURATION ====================
 const API_BASE_URL = 'http://localhost:5000/api';
+const BASE_URL = API_BASE_URL.replace(/\/api$/, '');
+function sanitizeImageUrl(url) {
+    if (!url) return null;
+    if (url.startsWith('/')) {
+        return BASE_URL + url;
+    }
+    // Optionally allow data: URLs for placeholders? but we have fallback.
+    return null;
+}
 
 // ==================== GLOBAL STATE ====================
 let currentUser = null;
@@ -238,7 +247,7 @@ function displayBooks(books) {
     booksGrid.innerHTML = books.filter(book => book.is_available).map(book => {
         const imgs = Array.isArray(book.images) && book.images.length > 0 ? book.images : (book.image_url ? [book.image_url] : []);
         const firstImg = imgs[0];
-        const imgSrc = firstImg ? (firstImg.startsWith('/') ? 'http://localhost:5000' + firstImg : firstImg) : null;
+        const imgSrc = firstImg ? sanitizeImageUrl(firstImg) : null;
         const photoCount = imgs.length > 1 ? `<span class="photo-count-badge">📷 ${imgs.length}</span>` : '';
         return `
             <div class="book-card" data-book-id="${book.id}">
@@ -299,7 +308,7 @@ function buildCarousel(images) {
 
     track.innerHTML = _carouselImages.map((src, i) => `
         <div class="carousel-slide${i === 0 ? ' active' : ''}">
-            <img src="${src.startsWith('/') ? 'http://localhost:5000' + src : src}"
+            <img src="${sanitizeImageUrl(src) || PLACEHOLDER}"
                  alt="صورة ${i + 1}"
                  onerror="this.src='${PLACEHOLDER}'">
         </div>
@@ -528,7 +537,7 @@ function displayMyBooks(books) {
         const visibilityNote = book.is_visible === false ? '<span style="color:#9ba3af;font-size:0.78rem;">👁️‍🗨️ مخفي عن العامة</span>' : '';
         const imgs = Array.isArray(book.images) && book.images.length > 0 ? book.images : (book.image_url ? [book.image_url] : []);
         const firstImg = imgs[0];
-        const imgSrc = firstImg ? (firstImg.startsWith('/') ? 'http://localhost:5000' + firstImg : firstImg) : null;
+        const imgSrc = firstImg ? sanitizeImageUrl(firstImg) : null;
         const photoCount = imgs.length > 1 ? `<span class="photo-count-badge">📷 ${imgs.length}</span>` : '';
         return `
         <div class="book-card">
@@ -1158,9 +1167,13 @@ async function initEditBookPage() {
         document.getElementById('editStatus').value      = book.status      || 'available';
         document.getElementById('editImageUrl').value    = book.image_url   || '';
 
-        if (book.image_url) {
-            document.getElementById('editPreviewImg').src = book.image_url;
+        const imgUrl = sanitizeImageUrl(book.image_url);
+        if (imgUrl) {
+            document.getElementById('editPreviewImg').src = imgUrl;
             document.getElementById('editImagePreview').classList.remove('hidden');
+        } else {
+            document.getElementById('editPreviewImg').src = '';
+            document.getElementById('editImagePreview').classList.add('hidden');
         }
 
         // Handle status change warnings

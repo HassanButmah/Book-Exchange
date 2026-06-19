@@ -1,6 +1,7 @@
 // ==================== CONFIGURATION ====================
-const API_BASE_URL = 'http://localhost:5000/api';
-const BASE_URL = API_BASE_URL.replace(/\/api$/, '');
+const IS_LOCAL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+const API_BASE_URL = IS_LOCAL ? 'http://localhost:5000/api' : '/api';
+const BASE_URL = IS_LOCAL ? 'http://localhost:5000' : '';
 function sanitizeImageUrl(url) {
     if (!url) return null;
     if (url.startsWith('/')) {
@@ -1047,7 +1048,7 @@ async function askGemma(message) {
     try {
 
         const response = await fetch(
-            "http://localhost:5000/api/chat",
+            `${API_BASE_URL}/chat`,
             {
                 method: "POST",
                 headers: {

@@ -190,7 +190,8 @@
 <script src="navbar.js"></script>
 <script src="app.js"></script>
 <script>
-const API = 'http://localhost:5000/api';
+const IS_LOCAL = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+const API = IS_LOCAL ? 'http://localhost:5000/api' : '/api';
 let allBooks = [], allUsers = [];
 
 function token() { return localStorage.getItem('token'); }

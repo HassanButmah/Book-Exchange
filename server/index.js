@@ -18,7 +18,7 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware (must come before routes)
 app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    origin: (origin, callback) => callback(null, true),
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true
@@ -39,7 +39,18 @@ app.use('/api/admin', adminRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
-    res.json({ status: 'OK' });
+    res.json({ status: 'OK', env: process.env.NODE_ENV || 'development' });
+});
+
+// Seed endpoint — triggers DB init + seeding on demand (useful after first deploy)
+app.get('/api/setup', async (req, res) => {
+    try {
+        await initializeDatabase();
+        await seedDatabase();
+        res.json({ message: '✅ Database initialized and seeded successfully!' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 // Error handling
@@ -48,13 +59,20 @@ app.use((err, req, res, next) => {
     res.status(500).json({ error: 'Internal server error' });
 });
 
-app.listen(PORT, async () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
-    console.log(`📚 HU Book Exchange Backend Started`);
-    
-    // Initialize database schema first
-    await initializeDatabase();
-    
-    // Then seed database with demo data
-    await seedDatabase();
-});
+// Export for Vercel serverless
+module.exports = app;
+
+// Start server locally (not on Vercel)
+if (process.env.NODE_ENV !== 'production' || process.env.LOCAL_DEV) {
+    app.listen(PORT, async () => {
+        console.log(`🚀 Server running on http://localhost:${PORT}`);
+        console.log(`📚 HU Book Exchange Backend Started`);
+
+        // Initialize database schema first
+        await initializeDatabase();
+
+        // Then seed database with demo data
+        await seedDatabase();
+    });
+}
+

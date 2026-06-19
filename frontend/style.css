@@ -18,24 +18,28 @@ a {
 
 :root {
     --primary: #11753b;
-    --secondary: #2e8b57;
-    --accent: #8fbc8f;
-    --background: #f5f5f5;
+    --primary-color: #11753b;
+    --secondary: #1da05a;
+    --accent: #a8d5b5;
+    --background: #f5f7f5;
     --text: #1a202c;
-    --primary-gradient: linear-gradient(135deg, var(--primary), var(--primary-dark));
-    --primary-dark: #0b5f1b;
+    --primary-gradient: linear-gradient(135deg, #11753b, #0d5e30);
+    --primary-dark: #0d5e30;
     --success-color: var(--primary);
     --error-color: #ef476f;
-    --warning-color: #ff9800;
+    --warning-color: #f59e0b;
     --light-bg: var(--background);
     --card-bg: #ffffff;
-    --border-color: #e8e8e8;
+    --border-color: #e2ece6;
     --text-primary: var(--text);
-    --text-secondary: #718096;
-    --shadow-sm: 0 2px 8px rgba(27, 94, 32, 0.08);
-    --shadow-md: 0 8px 24px rgba(27, 94, 32, 0.12);
-    --shadow-lg: 0 20px 48px rgba(27, 94, 32, 0.15);
-    --transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    --text-secondary: #6b7280;
+    --shadow-sm: 0 2px 8px rgba(17, 117, 59, 0.08);
+    --shadow-md: 0 8px 24px rgba(17, 117, 59, 0.12);
+    --shadow-lg: 0 20px 48px rgba(17, 117, 59, 0.16);
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --green-50: #f0faf4;
+    --green-100: #d4f1e0;
+    --green-200: #a8d5b5;
 }
 
 html {
@@ -313,13 +317,13 @@ input::placeholder {
 
 .nav-link:hover,
 .nav-links a:hover {
-    background: rgba(102, 126, 234, 0.08);
+    background: rgba(17, 117, 59, 0.08);
     color: var(--primary-color);
 }
 
 .nav-link.active,
 .nav-links a.active {
-    background: rgba(102, 126, 234, 0.12);
+    background: rgba(17, 117, 59, 0.13);
     color: var(--primary-color);
 }
 
@@ -423,14 +427,14 @@ input::placeholder {
 }
 
 #mainNavbar .nav-links a:hover {
-    background: rgba(102,126,234,.1);
-    color: var(--primary-color);
+    background: rgba(17, 117, 59, 0.09);
+    color: var(--primary);
     transform: translateY(-1px);
 }
 
 #mainNavbar .nav-links a.active {
-    background: rgba(102,126,234,.14);
-    color: var(--primary-color);
+    background: rgba(17, 117, 59, 0.13);
+    color: var(--primary);
     font-weight: 700;
 }
 
@@ -447,7 +451,7 @@ input::placeholder {
     display: flex;
     align-items: center;
     gap: 8px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #11753b 0%, #0d5e30 100%);
     color: #fff;
     border: none;
     border-radius: 50px;
@@ -458,12 +462,12 @@ input::placeholder {
     font-family: inherit;
     transition: all 0.25s ease;
     white-space: nowrap;
-    box-shadow: 0 4px 14px rgba(102,126,234,.35);
+    box-shadow: 0 4px 14px rgba(17, 117, 59, 0.30);
 }
 
 .nav-user-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(102,126,234,.45);
+    box-shadow: 0 6px 20px rgba(17, 117, 59, 0.42);
 }
 
 .nav-user-avatar {
@@ -492,12 +496,12 @@ input::placeholder {
 .nav-user-dropdown {
     position: absolute;
     top: calc(100% + 10px);
-    left: 0;           /* RTL: pops out to the left */
+    left: 0;
     min-width: 220px;
     background: #fff;
-    border: 1px solid rgba(102,126,234,.18);
+    border: 1px solid rgba(17, 117, 59, 0.15);
     border-radius: 16px;
-    box-shadow: 0 16px 48px rgba(0,0,0,.14);
+    box-shadow: 0 16px 48px rgba(17, 117, 59, 0.12), 0 4px 16px rgba(0,0,0,0.08);
     padding: 8px 0;
     z-index: 2000;
     opacity: 0;
@@ -556,7 +560,8 @@ input::placeholder {
 }
 
 .dropdown-item:hover {
-    background: rgba(102,126,234,.07);
+    background: rgba(17, 117, 59, 0.07);
+    color: var(--primary);
 }
 
 .logout-item {
@@ -565,6 +570,7 @@ input::placeholder {
 
 .logout-item:hover {
     background: rgba(239,71,111,.07);
+    color: #ef476f;
 }
 
 /* Login button (unauthenticated state) */
@@ -628,7 +634,7 @@ input::placeholder {
     }
 
     #mainNavbar .menu-toggle:hover {
-        background: rgba(102,126,234,.1);
+        background: rgba(17, 117, 59, 0.09);
     }
 
     /* Full-width slide-down drawer */
@@ -1062,9 +1068,9 @@ input::placeholder {
 .form-group textarea:focus,
 .form-group select:focus {
     outline: none;
-    border-color: var(--primary-color);
+    border-color: var(--primary);
     background: var(--card-bg);
-    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+    box-shadow: 0 0 0 4px rgba(17, 117, 59, 0.12);
 }
 
 .form-group textarea {
@@ -1319,7 +1325,7 @@ input::placeholder {
     width: 100%;
     height: 190px;
     flex-shrink: 0;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #11753b 0%, #0d5e30 100%);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1392,7 +1398,7 @@ input::placeholder {
     color: var(--text-secondary);
     margin-top: auto;
     padding-top: 0.5rem;
-    border-top: 1px solid #f0f4ff;
+    border-top: 1px solid #edf7f1;
 }
 
 .book-actions {

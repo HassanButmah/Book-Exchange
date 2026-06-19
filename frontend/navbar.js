@@ -74,12 +74,26 @@
             return;
         }
 
-        const links = [
-            { href: 'marketplace.html', label: 'الرئيسية',      icon: '🏠', authOnly: false, adminOnly: false },
-            { href: 'add-book.html',    label: 'إضافة كتاب',    icon: '➕', authOnly: true,  adminOnly: false },
-            { href: 'my-books.html',    label: 'كتبي',           icon: '📖', authOnly: true,  adminOnly: false },
-            { href: 'messages.html',    label: 'الرسائل',        icon: '💬', authOnly: true,  adminOnly: false },
-            { href: 'admin.html',       label: 'لوحة التحكم',   icon: '🛡️', authOnly: true,  adminOnly: true  },
+    // ── SVG icons (Lucide-style) ─────────────────────────────────────────────
+    const ICONS = {
+        home:     `<svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
+        plus:     `<svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`,
+        book:     `<svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>`,
+        message:  `<svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`,
+        shield:   `<svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>`,
+        user:     `<svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
+        logout:   `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>`,
+        menu:     `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>`,
+        books:    `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>`,
+        chevron:  `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>`,
+    };
+
+    const links = [
+            { href: 'marketplace.html', label: 'الرئيسية',    icon: ICONS.home,    authOnly: false, adminOnly: false },
+            { href: 'add-book.html',    label: 'إضافة كتاب',  icon: ICONS.plus,    authOnly: true,  adminOnly: false },
+            { href: 'my-books.html',    label: 'كتبي',         icon: ICONS.book,    authOnly: true,  adminOnly: false },
+            { href: 'messages.html',    label: 'الرسائل',      icon: ICONS.message, authOnly: true,  adminOnly: false },
+            { href: 'admin.html',       label: 'لوحة التحكم', icon: ICONS.shield,  authOnly: true,  adminOnly: true  },
         ];
 
         const navLinksHTML = links
@@ -100,9 +114,9 @@
             <!-- Desktop user menu -->
             <div class="nav-user-menu" id="navUserMenu">
                 <button class="nav-user-btn" onclick="toggleUserMenu(event)" aria-haspopup="true" aria-expanded="false">
-                    <span class="nav-user-avatar">👤</span>
+                    <span class="nav-user-avatar">${ICONS.user}</span>
                     <span class="nav-user-name">${escapeHtml(user.name)}</span>
-                    <span class="nav-user-caret">▾</span>
+                    <span class="nav-user-caret">${ICONS.chevron}</span>
                 </button>
                 <div class="nav-user-dropdown" id="userDropdown" role="menu">
                     <div class="nav-user-info">
@@ -111,7 +125,7 @@
                     </div>
                     <hr class="dropdown-divider">
                     <button class="dropdown-item logout-item" onclick="logout()" role="menuitem">
-                        <span>🚪</span> تسجيل الخروج
+                        <span>${ICONS.logout}</span> تسجيل الخروج
                     </button>
                 </div>
             </div>` : `
@@ -121,9 +135,9 @@
         // Mobile drawer logout row (only when authenticated)
         const mobileLogout = token && user ? `
             <li class="nav-mobile-user">
-                <span class="nav-mobile-name">👤 ${escapeHtml(user.name)}</span>
+                <span class="nav-mobile-name">${ICONS.user} ${escapeHtml(user.name)}</span>
                 <button class="btn-logout mobile-logout-btn" onclick="logout()">
-                    🚪 تسجيل الخروج
+                    ${ICONS.logout} تسجيل الخروج
                 </button>
             </li>` : '';
 
@@ -133,12 +147,12 @@
         navbar.innerHTML = `
             <div class="nav-container">
                 <a href="marketplace.html" class="nav-logo">
-                    <span>📚</span>
+                    ${ICONS.books}
                     <span>تبادل الكتب</span>
                 </a>
 
                 <!-- Mobile toggle -->
-                <button class="menu-toggle" onclick="toggleMenu()" aria-label="فتح القائمة" aria-expanded="false">☰</button>
+                <button class="menu-toggle" onclick="toggleMenu()" aria-label="فتح القائمة" aria-expanded="false">${ICONS.menu}</button>
 
                 <!-- Links drawer -->
                 <ul class="nav-links" id="navLinks">

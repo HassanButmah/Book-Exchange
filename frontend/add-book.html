@@ -6,20 +6,26 @@
     <title>إضافة كتاب - تبادل الكتب</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
 <!-- Floating Chatbot Button -->
 <div class="chatbot-bubble" onclick="toggleChatbot()">
-    🤖
+    <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
 </div>
 
 <!-- Chat Window -->
 <div class="chatbot-box hidden" id="chatbotBox">
     <div class="chatbot-header">
-        <span>Live Assistant</span>
-        <button onclick="toggleChatbot()">✖</button>
+        <span>المساعد الذكي</span>
+        <button onclick="toggleChatbot()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
     </div>
 
     <div class="chatbot-messages" id="chatbotMessages">
-        <div class="bot-msg">👋 اسألني عن أي كتاب موجود في النظام</div>
+        <div class="bot-msg">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-left:4px"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+            اسألني عن أي كتاب موجود في النظام
+        </div>
     </div>
 
     <div class="chatbot-input">
@@ -27,12 +33,16 @@
         <button onclick="sendChatbotMessage()">إرسال</button>
     </div>
 </div>
+
 <body>
     <!-- Navbar injected by navbar.js -->
 
     <div class="page-container">
         <div class="page-header">
-            <h1>📚 إضافة كتاب للتبادل</h1>
+            <h1>
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                إضافة كتاب للتبادل
+            </h1>
             <p>أدرج كتابك الجامعي للتبادل مع الطلاب الآخرين</p>
         </div>
 
@@ -63,7 +73,9 @@
                     <div class="image-upload-area" id="imageUploadArea">
                         <input type="file" id="bookImages" name="images" accept="image/*" multiple>
                         <div class="upload-placeholder" onclick="document.getElementById('bookImages').click()">
-                            <span class="upload-icon">📷</span>
+                            <span class="upload-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#11753b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                            </span>
                             <p>اضغط لاختيار صور من جهازك</p>
                             <small>JPG, PNG, WEBP — حتى 5MB لكل صورة — حتى 5 صور</small>
                         </div>

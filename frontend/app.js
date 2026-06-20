@@ -379,23 +379,30 @@ async function handleAddBook(e) {
         return;
     }
 
-    const title = document.getElementById('title').value.trim();
+    const title       = document.getElementById('title').value.trim();
     const description = document.getElementById('description').value.trim();
-    const condition = document.getElementById('condition').value;
-    const submitBtn = document.getElementById('submitBookBtn');
+    const condition   = document.getElementById('condition').value;
+    const submitBtn   = document.getElementById('submitBookBtn');
 
     submitBtn.disabled = true;
     submitBtn.textContent = 'جاري الإضافة...';
 
     try {
-        // Step 1: Create the book
+        // Convert selected files to base64 strings
+        const base64Images = [];
+        for (const file of selectedFiles) {
+            const b64 = await fileToBase64(file);
+            base64Images.push(b64);
+        }
+
+        // Single request with images embedded as base64
         const response = await fetch(`${API_BASE_URL}/books`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`,
             },
-            body: JSON.stringify({ title, description, condition }),
+            body: JSON.stringify({ title, description, condition, images: base64Images }),
         });
 
         const data = await response.json();
@@ -407,24 +414,6 @@ async function handleAddBook(e) {
             return;
         }
 
-        const bookId = data.id;
-
-        // Step 2: Upload images if selected
-        if (selectedFiles.length > 0) {
-            const formData = new FormData();
-            selectedFiles.forEach(file => formData.append('images', file));
-
-            const imgResponse = await fetch(`${API_BASE_URL}/books/${bookId}/images`, {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${token}` },
-                body: formData,
-            });
-
-            if (!imgResponse.ok) {
-                showToast('تمت إضافة الكتاب لكن فشل رفع بعض الصور', 'info');
-            }
-        }
-
         showToast('تم إضافة الكتاب بنجاح!', 'success');
         selectedFiles = [];
         setTimeout(() => { window.location.href = 'my-books.html'; }, 1000);
@@ -434,6 +423,16 @@ async function handleAddBook(e) {
         submitBtn.disabled = false;
         submitBtn.textContent = 'إضافة الكتاب';
     }
+}
+
+/** Convert a File object to a base64 data URL */
+function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload  = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
 }
 
 // ==================== IMAGE PREVIEW (with delete) ====================

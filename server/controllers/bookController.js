@@ -133,7 +133,7 @@ async function getUserBooks(req, res) {
 // ── Add book ───────────────────────────────────────────────────────────
 async function addBook(req, res) {
     try {
-        const { title, description, condition, image_url } = req.body;
+        const { title, description, condition, images } = req.body;
 
         if (!title || !description || !condition) {
             return res.status(400).json({ error: 'جميع الحقول المطلوبة يجب تعبئتها' });
@@ -142,12 +142,27 @@ async function addBook(req, res) {
             return res.status(400).json({ error: 'حالة الكتاب غير صالحة' });
         }
 
+        // Use first image as image_url, or null
+        const firstImage = Array.isArray(images) && images.length > 0 ? images[0] : null;
+
         const result = await pool.query(
             `INSERT INTO books (title, description, condition, image_url, owner_id, status, is_visible, is_available)
              VALUES ($1, $2, $3, $4, $5, 'available', TRUE, TRUE)
              RETURNING *`,
-            [title, description, condition, image_url || null, req.user.id]
+            [title, description, condition, firstImage, req.user.id]
         );
+
+        const bookId = result.rows[0].id;
+
+        // Save all images as book_images rows
+        if (Array.isArray(images) && images.length > 0) {
+            for (let i = 0; i < images.length; i++) {
+                await pool.query(
+                    'INSERT INTO book_images (book_id, image_path, display_order) VALUES ($1, $2, $3)',
+                    [bookId, images[i], i]
+                );
+            }
+        }
 
         res.status(201).json(result.rows[0]);
     } catch (err) {
@@ -155,6 +170,7 @@ async function addBook(req, res) {
         res.status(500).json({ error: 'فشل إضافة الكتاب' });
     }
 }
+
 
 // ── Update book (owner only) ──────────────────────────────────────────────
 async function updateBook(req, res) {

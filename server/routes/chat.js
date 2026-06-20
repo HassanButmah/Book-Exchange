@@ -96,6 +96,10 @@ let parsed;
 try {
 
     const responseText = llmData.choices?.[0]?.message?.content || '';
+    if (!responseText) {
+        throw new Error('No response from Groq');
+    }
+
     const cleanResponse = responseText
         .replace(/```json/g, '')
         .replace(/```/g, '')
@@ -105,10 +109,17 @@ try {
 
 } catch (err) {
 
-    console.log('RAW QWEN:', llmData.response);
+    console.error('Parse error:', err);
+    console.log('Raw Groq response:', llmData);
 
     return res.json({
-        reply: 'لم أفهم سؤالك.'
+        reply: 'معذرة، لم أتمكن من فهم سؤالك. جرب مثلاً: "من صاحب كتاب Database Design؟"'
+    });
+}
+
+if (!parsed.intent) {
+    return res.json({
+        reply: 'معذرة، لم أتمكن من فهم سؤالك. اسأل عن صاحب الكتاب أو توفره.'
     });
 }
 
@@ -258,64 +269,50 @@ console.log('Book:', searchText);
         }
 
         // =========================
-        // Qwen للإجابة الحرة
+        // OTHER - استخدم Groq للإجابة الحرة
         // =========================
 
         const answerResponse = await fetch(
-            'http://localhost:11434/api/generate',
+            'https://api.groq.com/openai/v1/chat/completions',
             {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${groqApiKey}`
                 },
                 body: JSON.stringify({
-                    model: 'qwen2.5:1.5b',
-                    prompt: `
-أنت مساعد لمنصة تبادل الكتب.
+                    model: 'mixtral-8x7b-32768',
+                    messages: [{
+                        role: 'user',
+                        content: `أنت مساعد ذكي لمنصة تبادل الكتب الجامعية.
 
-اعتمد فقط على البيانات التالية:
-مهم جداً:
+بيانات الكتاب:
+${book ? JSON.stringify(book, null, 2) : 'لا توجد بيانات كتاب محددة'}
 
-إذا كانت الرسالة مثل:
-
-متاح؟
-موجود؟
-حالته؟
-صاحبه؟
-مين صاحبه؟
-هل ما زال متوفراً؟
-
-فيجب أن يكون:
-
-{
-  "intent": "...",
-  "book": ""
-}
-
-ولا تضع أبداً الكلمات:
-متاح
-موجود
-حالته
-صاحبه
-
-داخل book.
-
-${JSON.stringify(book, null, 2)}
-
-السؤال:
+السؤال من المستخدم:
 ${message}
 
-أجب بالعربية وباختصار.
-`,
-                    stream: false
+أجب بالعربية وباختصار (جملة أو اثنتان فقط). كن مفيداً وودياً.`
+                    }],
+                    temperature: 0.7,
+                    max_tokens: 150
                 })
             }
         );
 
         const answerData = await answerResponse.json();
 
+        if (!answerResponse.ok) {
+            console.error('Groq answer API error:', answerData);
+            return res.json({
+                reply: 'معذرة، حدث خطأ في معالجة الرسالة. جرب سؤال آخر.'
+            });
+        }
+
+        const answerText = answerData.choices?.[0]?.message?.content || 'معذرة، لم أتمكن من الإجابة على سؤالك.';
+
         return res.json({
-            reply: answerData.response
+            reply: answerText
         });
 
     } catch (err) {
@@ -323,7 +320,7 @@ ${message}
         console.error('CHAT ERROR:', err);
 
         return res.status(500).json({
-            reply: 'حدث خطأ في الخادم.'
+            reply: 'حدث خطأ في الخادم. تأكد من إعدادات API.'
         });
     }
 });

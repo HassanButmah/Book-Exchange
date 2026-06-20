@@ -7,6 +7,16 @@
       "runtime": "@vercel/node@3.0.0"
     }
   },
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/server/index.js"
+    },
+    {
+      "source": "/uploads/(.*)",
+      "destination": "/server/index.js"
+    }
+  ],
   "headers": [
     {
       "source": "/(.*\\.html)",
@@ -29,16 +39,6 @@
     }
   ],
   "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "server/index.js",
-      "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
-    },
-    {
-      "src": "/uploads/(.*)",
-      "dest": "server/index.js",
-      "methods": ["GET", "POST"]
-    },
     {
       "src": "/(.*\\.(css|js|png|jpg|jpeg|gif|svg|ico|webp|woff|woff2|ttf))",
       "dest": "/frontend/$1"

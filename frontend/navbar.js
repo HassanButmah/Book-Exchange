@@ -89,7 +89,7 @@
     };
 
     const links = [
-            { href: 'marketplace.html', label: 'الرئيسية',    icon: ICONS.home,    authOnly: false, adminOnly: false },
+            { href: 'marketplace.html', label: 'الرئيسية',    icon: ICONS.home,    authOnly: true, adminOnly: false },
             { href: 'add-book.html',    label: 'إضافة كتاب',  icon: ICONS.plus,    authOnly: true,  adminOnly: false },
             { href: 'my-books.html',    label: 'كتبي',         icon: ICONS.book,    authOnly: true,  adminOnly: false },
             { href: 'messages.html',    label: 'الرسائل',      icon: ICONS.message, authOnly: true,  adminOnly: false },

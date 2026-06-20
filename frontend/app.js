@@ -50,7 +50,7 @@ function checkAuthStatus() {
     const token = localStorage.getItem('token');
     const page = getCurrentPage();
 
-    const protectedPages = ['add-book.html', 'my-books.html', 'messages.html', 'edit-book.html', 'admin.html'];
+    const protectedPages = ['add-book.html', 'my-books.html', 'messages.html', 'edit-book.html', 'admin.html', 'marketplace.html', 'exchanges.html'];
 
     if (protectedPages.includes(page) && !token) {
         window.location.href = 'login.html';

@@ -16,26 +16,36 @@ router.post('/', async (req, res) => {
         }
 
         // =========================
-        // استخراج النية واسم الكتاب بواسطة Qwen
+        // استخراج النية واسم الكتاب بواسطة Groq API
         // =========================
 
+        const groqApiKey = process.env.GROQ_API_KEY;
+        if (!groqApiKey) {
+            return res.status(500).json({
+                reply: 'خطأ: مفتاح API لم يتم تكوينه. اتصل بمسؤول النظام.'
+            });
+        }
+
         const llmResponse = await fetch(
-            'http://localhost:11434/api/generate',
+            'https://api.groq.com/openai/v1/chat/completions',
             {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${groqApiKey}`
                 },
                 body: JSON.stringify({
-                    model: 'qwen2.5:1.5b',
-                    prompt: `
-أنت مساعد لمنصة تبادل الكتب.
+                    model: 'mixtral-8x7b-32768',
+                    messages: [{
+                        role: 'user',
+                        content: `أنت مساعد لمنصة تبادل الكتب الجامعية. 
 
-استخرج JSON فقط بالشكل التالي:
+استخرج ONLY JSON بالشكل التالي (بدون نص إضافي):
 
 {
   "intent": "OWNER|AVAILABILITY|CONDITION|SEARCH|OTHER",
-  "book": "اسم الكتاب أو فارغ"
+  "book": "اسم الكتاب أو فارغ",
+  "contextFromLastMessage": true/false
 }
 
 أمثلة:
@@ -43,56 +53,50 @@ router.post('/', async (req, res) => {
 رسالة: مين صاحب كتاب Operating System
 {
   "intent": "OWNER",
-  "book": "Operating System"
+  "book": "Operating System",
+  "contextFromLastMessage": false
 }
 
-رسالة: مين مالك كتاب Database Design
+رسالة: مين مالك كتاب Database Design؟
 {
   "intent": "OWNER",
-  "book": "Database Design"
+  "book": "Database Design",
+  "contextFromLastMessage": false
 }
 
-رسالة: هل كتاب Database Design متاح؟
+رسالة: هل متاح؟
 {
   "intent": "AVAILABILITY",
-  "book": "Database Design"
-}
-
-رسالة: ما حالة كتاب Operating System؟
-{
-  "intent": "CONDITION",
-  "book": "Operating System"
-}
-
-رسالة: مين صاحبه؟
-{
-  "intent": "OWNER",
-  "book": ""
-}
-
-رسالة: هل هو متوفر؟
-{
-  "intent": "AVAILABILITY",
-  "book": ""
+  "book": "",
+  "contextFromLastMessage": true
 }
 
 رسالة المستخدم:
 ${message}
 
-أجب JSON فقط.
-`,
-                    stream: false
+أجب JSON فقط بدون نص إضافي.`
+                    }],
+                    temperature: 0.3,
+                    max_tokens: 200
                 })
             }
         );
 
         const llmData = await llmResponse.json();
 
+        if (!llmResponse.ok) {
+            console.error('Groq API Error:', llmData);
+            return res.status(500).json({
+                reply: 'خطأ في معالجة الرسالة. حاول مرة أخرى.'
+            });
+        }
+
 let parsed;
 
 try {
 
-    const cleanResponse = llmData.response
+    const responseText = llmData.choices?.[0]?.message?.content || '';
+    const cleanResponse = responseText
         .replace(/```json/g, '')
         .replace(/```/g, '')
         .trim();

@@ -7,33 +7,6 @@
     <link rel="stylesheet" href="style.css">
 </head>
 
-<!-- Floating Chatbot Button -->
-<div class="chatbot-bubble" onclick="toggleChatbot()">
-    <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-</div>
-
-<!-- Chat Window -->
-<div class="chatbot-box hidden" id="chatbotBox">
-    <div class="chatbot-header">
-        <span>المساعد الذكي</span>
-        <button onclick="toggleChatbot()">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
-    </div>
-
-    <div class="chatbot-messages" id="chatbotMessages">
-        <div class="bot-msg">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-left:4px"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
-            اسألني عن أي كتاب موجود في النظام
-        </div>
-    </div>
-
-    <div class="chatbot-input">
-        <input type="text" id="chatbotInput" placeholder="اكتب سؤالك...">
-        <button onclick="sendChatbotMessage()">إرسال</button>
-    </div>
-</div>
-
 <body>
     <!-- Navbar injected by navbar.js -->
 

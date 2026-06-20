@@ -183,8 +183,18 @@
             if (drawer) drawer.classList.remove('open');
         });
 
-        // Prevent drawer-internal clicks from closing it
-        document.getElementById('navLinks')?.addEventListener('click', e => e.stopPropagation());
+        // Prevent drawer-internal clicks from closing it, UNLESS it's a link
+        const navLinks = document.getElementById('navLinks');
+        if (navLinks) {
+            navLinks.addEventListener('click', e => {
+                if (e.target.tagName === 'A') {
+                    // Close drawer when clicking a link
+                    navLinks.classList.remove('open');
+                } else if (e.target !== navLinks) {
+                    e.stopPropagation();
+                }
+            });
+        }
         document.getElementById('navUserMenu')?.addEventListener('click', e => e.stopPropagation());
     }
 

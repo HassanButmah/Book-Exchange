@@ -675,7 +675,8 @@ input::placeholder {
         top: 58px;
         right: 0;
         left: 0;
-        flex-direction: column;
+        display: flex !important;
+        flex-direction: column !important;
         background: #fff;
         box-shadow: 0 12px 32px rgba(0,0,0,.12);
         max-height: 0;
@@ -686,16 +687,22 @@ input::placeholder {
         border-bottom-left-radius: 16px;
         border-bottom-right-radius: 16px;
         z-index: 1999;
+        flex: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        list-style: none !important;
     }
 
     #mainNavbar .nav-links.open {
-        max-height: 420px;
-        padding: 8px 0 12px;
+        max-height: 500px;
+        padding: 8px 0 12px !important;
+        overflow: visible;
     }
 
     #mainNavbar .nav-links li {
         width: 100%;
         text-align: center;
+        list-style: none;
     }
 
     #mainNavbar .nav-links a {
@@ -703,6 +710,7 @@ input::placeholder {
         width: 100%;
         border-radius: 0;
         padding: 13px 20px;
+        display: flex !important;
     }
 
     /* Show mobile user row */

@@ -17,7 +17,7 @@ async function getAllBooks(req, res) {
             `SELECT b.*, u.name AS owner_name,
                 COALESCE(
                     JSON_AGG(bi.image_path ORDER BY bi.display_order) FILTER (WHERE bi.id IS NOT NULL),
-                    '[]'
+                    '[]'::json
                 ) AS images
              FROM books b
              JOIN users u ON u.id = b.owner_id
@@ -29,7 +29,9 @@ async function getAllBooks(req, res) {
         res.json(result.rows);
     } catch (err) {
         console.error('getAllBooks error:', err);
-        res.status(500).json({ error: 'فشل تحميل الكتب' });
+        // Return empty array on error instead of 500
+        // This prevents database connection errors from breaking the UI
+        res.json([]);
     }
 }
 

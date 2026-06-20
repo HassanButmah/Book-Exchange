@@ -1791,57 +1791,37 @@ input::placeholder {
 
 /* ==================== MESSAGING PAGE ==================== */
 .messages-container {
-    max-width: 1600px;
-    margin: 0 auto;
-    padding: 60px 1rem 1rem;
-    animation: fadeIn 0.8s ease;
-    height: calc(100vh - 80px);
+    max-width: 100%;
+    margin: 0;
+    padding: 70px 0 0 0;
+    height: calc(100vh - 70px);
     display: flex;
     flex-direction: column;
+    background: #FAFBFC;
 }
 
 .messages-header {
-    margin-bottom: 1rem;
-    padding-bottom: 1rem;
+    display: none;
 }
 
-.messages-header h1 {
-    font-size: 1.8rem;
-    font-weight: 800;
-    color: #111;
-    margin: 0;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.messages-header h1 svg {
-    color: #006633;
-}
-
-.messages-header p {
-    color: #999;
-    font-size: 0.9rem;
-    margin: 4px 0 0;
-}
-
-.messages-layout{
+.messages-layout {
     display: flex;
     flex: 1;
     min-height: 0;
     background: #fff;
-    border-radius: 16px;
+    border-radius: 0;
     overflow: hidden;
-    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.1);
+    box-shadow: none;
 }
 
 .conversations-panel {
-    width: 340px;
+    width: 360px;
     background: #fff;
-    border-left: 1px solid #e5e7eb;
+    border-left: 1px solid #E1E8ED;
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
+    transition: all 0.3s ease;
 }
 
 .conversations-header {
@@ -2361,6 +2341,28 @@ input::placeholder {
 
 .messages-panel.full-width-mobile {
     width: 100%;
+}
+
+/* ===== Custom Scrollbar for Messages ===== */
+.messages-list::-webkit-scrollbar,
+.conversations-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.messages-list::-webkit-scrollbar-track,
+.conversations-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.messages-list::-webkit-scrollbar-thumb,
+.conversations-list::-webkit-scrollbar-thumb {
+    background: #E1E8ED;
+    border-radius: 3px;
+}
+
+.messages-list::-webkit-scrollbar-thumb:hover,
+.conversations-list::-webkit-scrollbar-thumb:hover {
+    background: #657786;
 }
 
 /* ==================== ANIMATIONS ===== ===== */

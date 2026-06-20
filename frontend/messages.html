@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>الرسائل - تبادل الكتب</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="messages-style.css">
 </head>
 <body>
 
@@ -30,11 +31,11 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
                 </button>
                 <div class="chat-user-info">
+                    <div class="chat-user-avatar" id="chatUserAvatar"></div>
                     <div class="user-name-wrapper">
                         <h2 id="chatUserName" class="user-name"></h2>
-                        <span class="online-indicator"></span>
+                        <p id="chatUserEmail" class="chat-email"><span class="online-indicator"></span></p>
                     </div>
-                    <p id="chatUserEmail" class="chat-email"></p>
                 </div>
             </div>
 
@@ -130,20 +131,13 @@ function displayConversations(conversations) {
         data-user-id="${c.conversation_user_id}"
         onclick="openConversation(${c.conversation_user_id}, null, '${escapeHtml(c.user_name)}', '${escapeHtml(c.user_email)}')">
 
+        <div class="conversation-avatar">${c.user_name.charAt(0)}</div>
+
         <div class="conversation-info">
-            <h3>
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                ${escapeHtml(c.user_name)}
-            </h3>
-
-            <small class="student-id">
-                <bdo dir="ltr">${c.user_email.split('@')[0]}</bdo>
-            </small>
-
+            <h3>${escapeHtml(c.user_name)}</h3>
             <p class="last-message">
                 ${c.last_message?.substring(0,40) || ''}...
             </p>
-
             <small>${new Date(c.last_message_time).toLocaleTimeString('ar-SA')}</small>
         </div>
 
@@ -156,11 +150,6 @@ function displayConversations(conversations) {
     if (currentItem) {
         currentItem.classList.add('active');
     }
-}
-
-        ${c.unread_count ? `<span class="unread-badge">${c.unread_count}</span>` : ''}
-    </div>
-`).join('');
 }
 
 /* UNREAD COUNT */
@@ -200,6 +189,7 @@ window.openConversation = async function(
 
     document.getElementById("chatUserName").textContent = userName || '';
     document.getElementById("chatUserEmail").textContent = userEmail ? userEmail.split('@')[0] : '';
+    document.getElementById("chatUserAvatar").textContent = userName ? userName.charAt(0) : '';
 
     window.currentConversationUserId = userId;
     window.currentBookId = bookId;
@@ -236,14 +226,19 @@ function displayMessages(messages) {
     const list = document.getElementById('messagesList');
     const userId = JSON.parse(localStorage.getItem('user')).id;
 
-    list.innerHTML = messages.map(m => `
-        <div class="message ${m.sender_id == userId ? 'sent':'received'}">
+    list.innerHTML = messages.map(m => {
+        const isOwn = m.sender_id == userId;
+        const senderName = isOwn ? 'أنت' : (m.sender_name || 'مستخدم');
+        const firstLetter = senderName.charAt(0);
+        
+        return `
+        <div class="message ${isOwn ? 'sent':'received'}">
             <div class="message-content">
                 <p>${escapeHtml(m.message)}</p>
-                <small>${new Date(m.created_at).toLocaleTimeString()}</small>
+                <small>${new Date(m.created_at).toLocaleTimeString('ar-SA', {hour: '2-digit', minute:'2-digit'})}</small>
             </div>
         </div>
-    `).join('');
+    `}).join('');
 
     // Scroll to bottom after DOM is painted
     requestAnimationFrame(() => {

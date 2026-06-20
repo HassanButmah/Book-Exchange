@@ -3352,3 +3352,549 @@ button[type="submit"].send-btn {
     .messages-panel, .conversations-panel { min-height: 350px; }
 }
 
+/* ==================== COMPREHENSIVE MOBILE RESPONSIVE (768px and below) ==================== */
+@media (max-width: 768px) {
+    /* Page spacing */
+    body {
+        font-size: 14px;
+    }
+
+    .page-container {
+        padding: 1rem 0.75rem;
+        margin-top: 60px;
+    }
+
+    .form-container {
+        padding: 1.5rem;
+        border-radius: 16px;
+    }
+
+    .auth-box {
+        padding: 1.5rem;
+    }
+
+    /* Headings */
+    .page-header h1 {
+        font-size: 1.75rem;
+    }
+
+    .page-header h2 {
+        font-size: 1.25rem;
+    }
+
+    /* Forms - Full width inputs */
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .form-actions .btn {
+        width: 100%;
+    }
+
+    /* Filter section - Stack vertically */
+    .filters-section {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+        flex-direction: column;
+        justify-content: stretch;
+    }
+
+    .search-input {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .filter-select {
+        width: 100%;
+    }
+
+    /* Books grid - 2 columns on tablets */
+    .books-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    .book-card {
+        min-height: 280px;
+    }
+
+    .book-image {
+        height: 160px;
+    }
+
+    /* Modal - Stack vertically */
+    .modal-body {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        padding: 1.5rem;
+    }
+
+    .modal-image {
+        height: 240px;
+    }
+
+    .modal-content {
+        max-width: 90vw;
+        border-radius: 16px;
+    }
+
+    /* Buttons - More touch-friendly */
+    .btn {
+        padding: 0.75rem 1.5rem;
+        font-size: 0.95rem;
+        min-height: 44px; /* iOS touch target */
+    }
+
+    .btn-sm {
+        min-height: 36px;
+    }
+
+    /* Navbar adjustments already covered above */
+    
+    /* Chatbot position */
+    .chatbot-bubble {
+        bottom: 20px;
+        left: 20px;
+        width: 50px;
+        height: 50px;
+        font-size: 24px;
+    }
+
+    .chatbot-box {
+        width: calc(100vw - 40px);
+        max-width: calc(100vw - 40px);
+        height: 60vh;
+        left: 20px;
+        bottom: 80px;
+    }
+
+    /* Toast notifications */
+    .toast-container {
+        left: 1rem;
+        right: 1rem;
+        bottom: 1rem;
+    }
+
+    .toast {
+        max-width: 100%;
+        margin: 0;
+    }
+
+    /* Carousel on modal */
+    .modal-carousel {
+        width: 100%;
+        max-width: 100%;
+        height: 200px;
+    }
+
+    /* Messages page */
+    .messages-header {
+        padding-top: 0;
+    }
+
+    .messages-header h1 {
+        font-size: 1.5rem;
+    }
+
+    .chat-header {
+        padding: 12px 16px;
+    }
+
+    .messages-list {
+        padding: 12px 16px;
+        gap: 10px;
+    }
+
+    .message.sent .message-content,
+    .message.received .message-content {
+        max-width: 85%;
+    }
+
+    .conversation-item h3 {
+        font-size: 0.85rem;
+    }
+
+    /* Admin page */
+    .admin-stats {
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+    }
+
+    .admin-stat-number {
+        font-size: 1.75rem;
+    }
+
+    .admin-table {
+        font-size: 0.8rem;
+    }
+
+    .admin-table th,
+    .admin-table td {
+        padding: 0.6rem 0.8rem;
+    }
+}
+
+/* ==================== SMALL PHONES (480px and below) ==================== */
+@media (max-width: 480px) {
+    body {
+        font-size: 13px;
+    }
+
+    .page-container {
+        padding: 0.75rem 0.5rem;
+    }
+
+    .form-container {
+        padding: 1rem;
+    }
+
+    .auth-box {
+        padding: 1rem;
+        margin: 0.5rem;
+    }
+
+    /* Headings smaller on small phones */
+    .page-header h1 {
+        font-size: 1.5rem;
+    }
+
+    .page-header h2 {
+        font-size: 1.1rem;
+    }
+
+    .page-header p {
+        font-size: 0.95rem;
+    }
+
+    /* Single column for books grid on very small phones */
+    .books-grid {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+
+    .book-card {
+        min-height: 260px;
+    }
+
+    .book-image {
+        height: 140px;
+    }
+
+    .book-title {
+        font-size: 0.9rem;
+    }
+
+    /* Forms full width */
+    .form-group label {
+        font-size: 0.9rem;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+        font-size: 16px;
+        padding: 0.75rem 1rem;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    /* Filter section on small phones */
+    .filters-section {
+        gap: 0.5rem;
+    }
+
+    .search-input,
+    .filter-select {
+        padding: 0.75rem;
+        font-size: 0.9rem;
+    }
+
+    /* Buttons touch-friendly */
+    .btn {
+        padding: 0.7rem 1.2rem;
+        font-size: 0.9rem;
+        min-height: 44px;
+    }
+
+    .btn-small {
+        padding: 0.5rem 0.8rem;
+        font-size: 0.8rem;
+    }
+
+    /* Modal on small phones */
+    .modal-content {
+        width: 95vw;
+        max-width: 95vw;
+        border-radius: 12px;
+    }
+
+    .modal-body {
+        padding: 1rem;
+    }
+
+    .modal-image {
+        height: 180px;
+        border-radius: 10px;
+    }
+
+    .modal-close {
+        top: 1rem;
+        right: 1rem;
+        width: 36px;
+        height: 36px;
+        font-size: 1.5rem;
+    }
+
+    /* Carousel */
+    .modal-carousel {
+        height: 160px;
+        border-radius: 10px;
+    }
+
+    .carousel-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 18px;
+    }
+
+    /* Chatbot */
+    .chatbot-bubble {
+        width: 48px;
+        height: 48px;
+        font-size: 22px;
+        bottom: 16px;
+        left: 16px;
+    }
+
+    .chatbot-box {
+        width: calc(100vw - 32px);
+        height: 70vh;
+        left: 16px;
+        bottom: 70px;
+        border-radius: 16px;
+    }
+
+    .chatbot-messages {
+        height: calc(70vh - 140px);
+    }
+
+    /* Messages page on small phones */
+    .messages-container {
+        padding: 1rem 0.5rem;
+    }
+
+    .messages-header h1 {
+        font-size: 1.25rem;
+        gap: 5px;
+    }
+
+    .chat-header {
+        padding: 10px 14px;
+    }
+
+    .chat-header h2 {
+        font-size: 0.9rem;
+    }
+
+    .chat-email {
+        font-size: 0.7rem;
+    }
+
+    .messages-list {
+        padding: 10px 12px;
+        gap: 8px;
+    }
+
+    .message.sent .message-content,
+    .message.received .message-content {
+        max-width: 90%;
+        padding: 8px 12px;
+        font-size: 0.85rem;
+    }
+
+    .message-input-area {
+        padding: 10px 12px;
+        gap: 6px;
+    }
+
+    .message-input-area textarea {
+        min-height: 60px;
+        font-size: 0.9rem;
+        padding: 8px 10px;
+    }
+
+    .send-btn {
+        font-size: 0.85rem;
+        padding: 8px;
+    }
+
+    .conversation-item {
+        padding: 10px 12px;
+    }
+
+    .conversation-item h3 {
+        font-size: 0.8rem;
+    }
+
+    .conversation-item .last-message {
+        font-size: 0.7rem;
+    }
+
+    /* Navbar on small phones */
+    #mainNavbar .nav-container {
+        padding: 0 10px;
+        height: 56px;
+    }
+
+    #mainNavbar .menu-toggle {
+        font-size: 20px;
+        padding: 4px;
+    }
+
+    .nav-logo {
+        gap: 6px;
+    }
+
+    .nav-logo-img {
+        width: 32px;
+        height: 32px;
+    }
+
+    .nav-logo-university {
+        font-size: 0.75rem;
+    }
+
+    .nav-logo-platform {
+        font-size: 0.6rem;
+    }
+
+    .search-conversations {
+        width: calc(100% - 1.5rem);
+        margin: 0.5rem 0.75rem;
+        padding: 0.65rem;
+        font-size: 0.85rem;
+    }
+
+    /* Admin page adjustments */
+    .admin-stats {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+
+    .admin-stat-number {
+        font-size: 1.5rem;
+    }
+
+    .admin-stat-label {
+        font-size: 0.75rem;
+    }
+
+    .admin-table {
+        font-size: 0.75rem;
+    }
+
+    .admin-table th,
+    .admin-table td {
+        padding: 0.5rem 0.6rem;
+    }
+
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.7rem;
+    }
+
+    /* Toast notifications */
+    .toast-container {
+        left: 0.5rem;
+        right: 0.5rem;
+        bottom: 0.5rem;
+    }
+
+    .toast {
+        padding: 1rem;
+        margin: 0;
+        font-size: 0.85rem;
+    }
+
+    /* Image upload area */
+    .image-upload-area {
+        border-radius: 12px;
+    }
+
+    .upload-placeholder {
+        padding: 20px 15px;
+        gap: 6px;
+    }
+
+    .upload-icon {
+        font-size: 2rem;
+    }
+
+    .upload-placeholder p {
+        font-size: 0.9rem;
+    }
+
+    .upload-placeholder small {
+        font-size: 0.75rem;
+    }
+
+    /* Image preview grid */
+    .image-preview-grid {
+        grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+        gap: 8px;
+    }
+
+    .preview-thumb {
+        border-radius: 8px;
+    }
+
+    /* Touch-friendly spacing */
+    .modal {
+        padding: 1rem 0.5rem;
+    }
+}
+
+/* ==================== EXTRA SMALL PHONES (Under 360px) ==================== */
+@media (max-width: 320px) {
+    .page-header h1 {
+        font-size: 1.25rem;
+    }
+
+    .books-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .btn {
+        font-size: 0.85rem;
+        padding: 0.6rem 1rem;
+    }
+
+    .modal-content {
+        width: 98vw;
+        padding: 1rem;
+    }
+
+    .chatbot-box {
+        width: calc(100vw - 20px);
+        height: 75vh;
+    }
+
+    .form-group input,
+    .form-group textarea {
+        font-size: 16px; /* Prevent zoom */
+    }
+}
+

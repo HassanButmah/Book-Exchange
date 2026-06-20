@@ -135,9 +135,15 @@ function loadPageContent() {
 async function handleRegister(e) {
     e.preventDefault();
 
-    const name = document.getElementById('name').value;
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
+    // Support both old and new ID names
+    const name = (document.getElementById('reg-name') || document.getElementById('name'))?.value;
+    const email = (document.getElementById('reg-email') || document.getElementById('email'))?.value;
+    const password = (document.getElementById('reg-pass') || document.getElementById('password'))?.value;
+
+    if (!name || !email || !password) {
+        showToast('⚠️ جميع الحقول مطلوبة', 'error');
+        return;
+    }
 
     const res = await fetch(`${API_BASE_URL}/auth/register`, {
         method: 'POST',
@@ -150,14 +156,28 @@ async function handleRegister(e) {
     if (!res.ok) return showToast(data.error, 'error');
 
     pendingUserId = data.userId;
-    showToast("Check email for verification", "success");
+    showToast("✅ Check email for verification", "success");
 }
 
 
 async function handleVerification(e) {
     e.preventDefault();
 
-    const code = document.getElementById('verificationCode').value;
+    // Get code from OTP boxes (new) or verificationCode input (old)
+    let code;
+    const otpBoxes = document.querySelectorAll('.otp-box');
+    if (otpBoxes.length > 0) {
+        // New format: OTP boxes
+        code = Array.from(otpBoxes).map(b => b.value).join('');
+    } else {
+        // Old format: single input
+        code = document.getElementById('verificationCode')?.value;
+    }
+
+    if (!code || code.length < 6) {
+        showToast('⚠️ أدخل الرمز كاملاً', 'error');
+        return;
+    }
 
     const res = await fetch(`${API_BASE_URL}/auth/verify`, {
         method: 'POST',
@@ -169,6 +189,7 @@ async function handleVerification(e) {
 
     if (!res.ok) return showToast(data.error, 'error');
 
+    showToast('✅ تم التحقق بنجاح!', 'success');
     window.location.href = 'login.html';
 }
 

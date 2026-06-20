@@ -23,37 +23,39 @@
     <div class="messages-layout">
 
         <!-- ============ CHAT PANEL ============ -->
-        <section class="messages-panel">
+        <section class="messages-panel" id="messagesPanel">
 
             <div class="chat-header" id="chatHeader" style="display:none;">
+                <button class="chat-back-btn" id="chatBackBtn" style="display:none;" onclick="backToConversations()">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                </button>
                 <div class="chat-user-info">
-    <h2 id="chatUserName"></h2>
-<p id="chatUserEmail" class="chat-email"></p>
-    <p id="chatBookTitle" style="display:none;"></p>
-</div>
+                    <div class="user-name-wrapper">
+                        <h2 id="chatUserName" class="user-name"></h2>
+                        <span class="online-indicator"></span>
+                    </div>
+                    <p id="chatUserEmail" class="chat-email"></p>
+                </div>
             </div>
 
             <div class="no-conversation-selected" id="noConversationSelected">
                 <div class="empty-state">
-                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#a8d5b5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:12px"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                <p>اختر محادثة لبدء التواصل</p>
-            </div>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#a8d5b5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:12px"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    <p>اختر محادثة لبدء التواصل</p>
+                </div>
             </div>
 
             <div class="messages-content" id="messagesContent" style="display:none;">
-
                 <div class="messages-list" id="messagesList"></div>
 
                 <div class="message-input-area">
                     <form id="messageForm" onsubmit="sendMessage(event)">
-                        <textarea id="messageInput" placeholder="أكتب رسالتك هنا..." rows="3" required></textarea>
-                        <button type="submit" class="send-btn">
+                        <textarea id="messageInput" placeholder="أكتب رسالتك هنا..." rows="1" required></textarea>
+                        <button type="submit" class="send-btn" aria-label="إرسال الرسالة">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-                            إرسال
                         </button>
                     </form>
                 </div>
-
             </div>
         </section>
 
@@ -124,18 +126,14 @@ function displayConversations(conversations) {
     }
 
     list.innerHTML = conversations.map(c => `
-    <div class="conversation-item"
-        onclick="openConversation(
-            ${c.conversation_user_id},
-            null,
-            '${c.user_name}',
-            '${c.user_email}'
-        )">
+    <div class="conversation-item${c.conversation_user_id === window.currentConversationUserId ? ' active' : ''}"
+        data-user-id="${c.conversation_user_id}"
+        onclick="openConversation(${c.conversation_user_id}, null, '${escapeHtml(c.user_name)}', '${escapeHtml(c.user_email)}')">
 
         <div class="conversation-info">
             <h3>
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                ${c.user_name}
+                ${escapeHtml(c.user_name)}
             </h3>
 
             <small class="student-id">
@@ -148,6 +146,17 @@ function displayConversations(conversations) {
 
             <small>${new Date(c.last_message_time).toLocaleTimeString('ar-SA')}</small>
         </div>
+
+        ${c.unread_count ? `<span class="unread-badge">${c.unread_count}</span>` : ''}
+    </div>
+`).join('');
+
+    // Update active state
+    const currentItem = list.querySelector(`[data-user-id="${window.currentConversationUserId}"]`);
+    if (currentItem) {
+        currentItem.classList.add('active');
+    }
+}
 
         ${c.unread_count ? `<span class="unread-badge">${c.unread_count}</span>` : ''}
     </div>
@@ -167,6 +176,20 @@ function updateUnreadCount(conversations) {
     }
 }
 
+/* BACK TO CONVERSATIONS - Mobile only */
+window.backToConversations = function() {
+    const conversationsPanel = document.querySelector('.conversations-panel');
+    const messagesPanel = document.getElementById('messagesPanel');
+    
+    if (window.innerWidth < 768) {
+        // Mobile: hide chat, show conversations
+        conversationsPanel.classList.remove('hidden-mobile');
+        messagesPanel.classList.remove('full-width-mobile');
+        document.getElementById('chatBackBtn').style.display = 'none';
+        window.currentConversationUserId = null;
+    }
+};
+
 /* OPEN CONVERSATION */
 window.openConversation = async function(
     userId,
@@ -175,11 +198,8 @@ window.openConversation = async function(
     userEmail = ''
 ) {
 
-    document.getElementById("chatUserName").textContent =
-        userName || '';
-
-    document.getElementById("chatUserEmail").textContent =
-        userEmail ? userEmail.split('@')[0] : '';
+    document.getElementById("chatUserName").textContent = userName || '';
+    document.getElementById("chatUserEmail").textContent = userEmail ? userEmail.split('@')[0] : '';
 
     window.currentConversationUserId = userId;
     window.currentBookId = bookId;
@@ -201,8 +221,15 @@ window.openConversation = async function(
         document.getElementById('noConversationSelected').style.display='none';
         document.getElementById('messagesContent').style.display='flex';
         document.getElementById('chatHeader').style.display='flex';
+        
+        // Mobile: show back button and full-width chat
+        if (window.innerWidth < 768) {
+            document.getElementById('chatBackBtn').style.display = 'flex';
+            document.querySelector('.conversations-panel').classList.add('hidden-mobile');
+            document.getElementById('messagesPanel').classList.add('full-width-mobile');
+        }
     }
-}
+};
 
 /* DISPLAY MESSAGES */
 function displayMessages(messages) {
@@ -266,21 +293,36 @@ window.addEventListener('DOMContentLoaded', ()=>{
     }
 
     loadConversations();
-const selectedUserId = sessionStorage.getItem('selectedUserId');
+    
+    const selectedUserId = sessionStorage.getItem('selectedUserId');
+    if (selectedUserId) {
+        openConversation(
+            Number(selectedUserId),
+            sessionStorage.getItem('selectedBookId'),
+            sessionStorage.getItem('selectedUserName'),
+            sessionStorage.getItem('selectedUserEmail')
+        );
+    }
+    
+    setInterval(loadConversations, 3000);
 
-if (selectedUserId) {
-
-    openConversation(
-        Number(selectedUserId),
-        sessionStorage.getItem('selectedBookId'),
-        sessionStorage.getItem('selectedUserName'),
-        sessionStorage.getItem('selectedUserEmail')
-    );
-
-
-}
-    setInterval(loadConversations,3000);
+    // Handle window resize for responsive behavior
+    window.addEventListener('resize', () => {
+        if (window.currentConversationUserId) {
+            // Keep conversation open but update responsive layout
+            const chatBackBtn = document.getElementById('chatBackBtn');
+            if (window.innerWidth < 768) {
+                chatBackBtn.style.display = 'flex';
+            } else {
+                chatBackBtn.style.display = 'none';
+                // Reset mobile classes on desktop
+                document.querySelector('.conversations-panel').classList.remove('hidden-mobile');
+                document.getElementById('messagesPanel').classList.remove('full-width-mobile');
+            }
+        }
+    });
 });
+
 </script>
 
 </body>

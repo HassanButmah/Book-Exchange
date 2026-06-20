@@ -28,12 +28,6 @@ app.use(cors({
     credentials: true
 }));
 
-// Ensure JSON content-type
-app.use((req, res, next) => {
-    res.setHeader('Content-Type', 'application/json; charset=utf-8');
-    next();
-});
-
 app.use(bodyParser.json({ limit: '20mb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '20mb' }));
 
@@ -42,6 +36,12 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Serve frontend static files
 app.use(express.static(path.join(__dirname, '../frontend')));
+
+// Set JSON content-type ONLY for API routes
+app.use('/api', (req, res, next) => {
+    res.setHeader('Content-Type', 'application/json; charset=utf-8');
+    next();
+});
 
 // Routes
 app.use('/api/chat', chatRoutes);

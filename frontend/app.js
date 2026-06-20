@@ -1029,62 +1029,53 @@ if (sendBtn) {
 
 function toggleChatbot() {
     const box = document.getElementById("chatbotBox");
-
     if (!box) return;
-
     box.classList.toggle("hidden");
 }
 
 async function sendChatbotMessage() {
-
-    const input =
-        document.getElementById("chatbotInput");
-
+    const input = document.getElementById("chatbotInput");
     if (!input) return;
 
-    const text =
-        input.value.trim();
-
+    const text = input.value.trim();
     if (!text) return;
 
-    const messages =
-        document.getElementById("chatbotMessages");
+    const messages = document.getElementById("chatbotMessages");
+    if (!messages) return;
 
-    messages.innerHTML += `
-        <div class="user-msg">
-            ${text}
-        </div>
-    `;
-
+    messages.innerHTML += `<div class="user-msg">${escapeHtml(text)}</div>`;
     input.value = "";
 
-    messages.innerHTML += `
-        <div class="bot-msg" id="loading">
-            ⏳ جاري التفكير...
-        </div>
-    `;
+    messages.innerHTML += `<div class="bot-msg" id="loading">⏳ جاري التفكير...</div>`;
+    messages.scrollTop = messages.scrollHeight;
 
-    messages.scrollTop =
-        messages.scrollHeight;
+    const reply = await askGemma(text);
+    const loading = document.getElementById("loading");
+    if (loading) loading.remove();
 
-    const reply =
-        await askGemma(text);
+    messages.innerHTML += `<div class="bot-msg">${escapeHtml(reply)}</div>`;
+    messages.scrollTop = messages.scrollHeight;
+}
 
-    const loading =
-        document.getElementById("loading");
+async function askGemma(query) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/chat`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: query })
+        });
 
-    if (loading) {
-        loading.remove();
+        if (!response.ok) {
+            console.error('Chat API error:', response.status);
+            return '🤖 عذراً، حدث خطأ في الخادم. حاول لاحقاً.';
+        }
+
+        const data = await response.json();
+        return data.reply || data.response || '🤖 لم أستطع فهم سؤالك. حاول مرة أخرى.';
+    } catch (err) {
+        console.error('Chatbot error:', err);
+        return '🤖 خطأ في الاتصال. تأكد من اتصالك بالإنترنت.';
     }
-
-    messages.innerHTML += `
-        <div class="bot-msg">
-            ${reply}
-        </div>
-    `;
-
-    messages.scrollTop =
-        messages.scrollHeight;
 }
 
 // ==================== EDIT BOOK PAGE ====================

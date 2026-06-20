@@ -388,11 +388,11 @@ async function handleAddBook(e) {
     submitBtn.textContent = 'جاري الإضافة...';
 
     try {
-        // Convert selected files to base64 strings
+        // Compress and convert selected files to base64
         const base64Images = [];
         for (const file of selectedFiles) {
-            const b64 = await fileToBase64(file);
-            base64Images.push(b64);
+            const compressed = await compressImage(file, 900, 0.78);
+            base64Images.push(compressed);
         }
 
         // Single request with images embedded as base64
@@ -425,12 +425,35 @@ async function handleAddBook(e) {
     }
 }
 
-/** Convert a File object to a base64 data URL */
-function fileToBase64(file) {
+/**
+ * Resize + compress an image file to JPEG via Canvas.
+ * Keeps output well within Vercel's 4.5 MB body limit.
+ * @param {File} file
+ * @param {number} maxPx  – max width or height in pixels (default 900)
+ * @param {number} quality – JPEG quality 0-1 (default 0.78)
+ * @returns {Promise<string>} base64 data-URL
+ */
+function compressImage(file, maxPx = 900, quality = 0.78) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
-        reader.onload  = () => resolve(reader.result);
         reader.onerror = reject;
+        reader.onload = (e) => {
+            const img = new Image();
+            img.onerror = reject;
+            img.onload = () => {
+                let w = img.width, h = img.height;
+                if (w > maxPx || h > maxPx) {
+                    if (w >= h) { h = Math.round(h * maxPx / w); w = maxPx; }
+                    else        { w = Math.round(w * maxPx / h); h = maxPx; }
+                }
+                const canvas = document.createElement('canvas');
+                canvas.width  = w;
+                canvas.height = h;
+                canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                resolve(canvas.toDataURL('image/jpeg', quality));
+            };
+            img.src = e.target.result;
+        };
         reader.readAsDataURL(file);
     });
 }

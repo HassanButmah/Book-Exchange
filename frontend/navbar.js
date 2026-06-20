@@ -46,7 +46,8 @@
 
     // ── toggle mobile menu ───────────────────────────────────────────────────
 
-    window.toggleMenu = function () {
+    window.toggleMenu = function (e) {
+        e.stopPropagation();
         const drawer = document.getElementById('navLinks');
         if (drawer) drawer.classList.toggle('open');
     };
@@ -175,8 +176,11 @@
             document.body.insertAdjacentElement('afterbegin', navbar);
         }
 
-        // Close dropdown when clicking outside
-        document.addEventListener('click', () => {
+        // Close dropdown when clicking outside (but not when clicking menu-toggle)
+        document.addEventListener('click', (e) => {
+            // Don't close if clicking the menu toggle button
+            if (e.target.closest('.menu-toggle')) return;
+            
             document.getElementById('userDropdown')?.classList.remove('open');
             // Also close mobile drawer when clicking outside
             const drawer = document.getElementById('navLinks');

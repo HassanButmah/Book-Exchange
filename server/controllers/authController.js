@@ -24,15 +24,25 @@ function generateVerificationCode() {
 // Send verification email
 async function sendVerificationEmail(email, code, name) {
     try {
-        const isDev = !process.env.EMAIL_USER || process.env.EMAIL_USER === 'your_email@gmail.com';
-
-        if (isDev) {
-            // Dev mode: just log
+        // Check if email service is configured
+        const isEmailConfigured = process.env.EMAIL_USER && process.env.EMAIL_PASSWORD && process.env.EMAIL_USER !== 'your_email@gmail.com';
+        
+        if (!isEmailConfigured) {
+            // Dev mode: just log - useful for testing locally or on Vercel without email setup
             console.log(`\n🔑 [VERIFICATION CODE] ${email} → ${code}\n`);
             return true;
         }
 
-        await transporter.sendMail({
+        // Create transporter for this email (ensures fresh auth)
+        const emailTransporter = nodemailer.createTransport({
+            service: process.env.EMAIL_SERVICE || 'gmail',
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASSWORD,
+            },
+        });
+
+        await emailTransporter.sendMail({
             from: `"منصة تبادل الكتب - جامعة الخليل" <${process.env.EMAIL_USER}>`,
             to: email,
             subject: '🔐 رمز التحقق - HU Book Exchange',
@@ -92,15 +102,31 @@ const register = async (req, res) => {
     try {
         const { name, email, password } = req.body;
 
-        // Validate email domain
-        if (!email.endsWith('@students.hebron.edu')) {
-            return res.status(400).json({ error: 'Email must end with @students.hebron.edu' });
+        // Validate inputs
+        if (!name || !email || !password) {
+            return res.status(400).json({ error: 'الاسم والبريد وكلمة المرور مطلوبة' });
+        }
+
+        // Clean and validate email
+        const cleanEmail = email.toLowerCase().trim();
+        if (!cleanEmail.endsWith('@students.hebron.edu')) {
+            return res.status(400).json({ 
+                error: 'يجب استخدام بريد طالب جامعة الخليل (@students.hebron.edu)' 
+            });
+        }
+
+        // Validate password strength
+        if (password.length < 6) {
+            return res.status(400).json({ error: 'كلمة المرور يجب أن تكون 6 أحرف على الأقل' });
         }
 
         // Check if user already exists
-        const existingUser = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
+        const existingUser = await pool.query(
+            'SELECT * FROM users WHERE LOWER(email) = LOWER($1)',
+            [cleanEmail]
+        );
         if (existingUser.rows.length > 0) {
-            return res.status(400).json({ error: 'Email already registered' });
+            return res.status(400).json({ error: 'البريد الإلكتروني مسجل بالفعل' });
         }
 
         // Hash password
@@ -108,8 +134,8 @@ const register = async (req, res) => {
 
         // Create user
         const result = await pool.query(
-            'INSERT INTO users (name, email, password_hash) VALUES ($1, $2, $3) RETURNING id, email',
-            [name, email, hashedPassword]
+            'INSERT INTO users (name, email, password_hash) VALUES ($1, $2, $3) RETURNING id, email, name',
+            [name, cleanEmail, hashedPassword]
         );
 
         const userId = result.rows[0].id;
@@ -118,18 +144,26 @@ const register = async (req, res) => {
         const code = generateVerificationCode();
         const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
 
+        // Delete any old codes first (cleanup)
+        await pool.query(
+            'DELETE FROM verification_codes WHERE user_id = $1',
+            [userId]
+        );
+
+        // Insert new code
         await pool.query(
             'INSERT INTO verification_codes (user_id, code, expires_at) VALUES ($1, $2, $3)',
             [userId, code, expiresAt]
         );
 
         // Send email
-        await sendVerificationEmail(email, code, name);
+        const emailSent = await sendVerificationEmail(cleanEmail, code, name);
+        console.log(`User registered: ${cleanEmail} (ID: ${userId}), Email sent: ${emailSent}`);
 
         res.status(201).json({
-            message: 'Registration successful. Check your email for verification code.',
+            message: 'تم التسجيل بنجاح. تحقق من بريدك للحصول على رمز التحقق',
             userId,
-            email,
+            email: cleanEmail,
         });
     } catch (err) {
         console.error('Register error:', err);
@@ -142,23 +176,35 @@ const verify = async (req, res) => {
     try {
         const { userId, code } = req.body;
 
+        // Validate inputs
+        if (!userId || !code) {
+            return res.status(400).json({ error: 'معرّف المستخدم والرمز مطلوبان' });
+        }
+
+        // Ensure userId is a number
+        const userIdNum = parseInt(userId, 10);
+        if (isNaN(userIdNum)) {
+            return res.status(400).json({ error: 'معرّف مستخدم غير صحيح' });
+        }
+
         // Check verification code
         const result = await pool.query(
             'SELECT * FROM verification_codes WHERE user_id = $1 AND code = $2 AND expires_at > NOW()',
-            [userId, code]
+            [userIdNum, code.trim()]
         );
 
         if (result.rows.length === 0) {
-            return res.status(400).json({ error: 'Invalid or expired verification code' });
+            return res.status(400).json({ error: 'رمز خاطئ أو منتهي الصلاحية' });
         }
 
         // Mark user as verified
-        await pool.query('UPDATE users SET is_verified = TRUE WHERE id = $1', [userId]);
+        await pool.query('UPDATE users SET is_verified = TRUE WHERE id = $1', [userIdNum]);
 
         // Delete used verification code
-        await pool.query('DELETE FROM verification_codes WHERE user_id = $1', [userId]);
+        await pool.query('DELETE FROM verification_codes WHERE user_id = $1', [userIdNum]);
 
-        res.json({ message: 'Email verified successfully' });
+        console.log(`User verified: ID ${userIdNum}`);
+        res.json({ message: 'تم التحقق من البريد بنجاح' });
     } catch (err) {
         console.error('Verify error:', err);
         res.status(500).json({ error: 'Server error' });
@@ -216,24 +262,39 @@ const login = async (req, res) => {
 const resend = async (req, res) => {
     try {
         const { userId } = req.body;
-        if (!userId) return res.status(400).json({ error: 'userId مطلوب' });
+        
+        if (!userId) {
+            return res.status(400).json({ error: 'معرّف المستخدم مطلوب' });
+        }
 
-        const user = await pool.query('SELECT * FROM users WHERE id = $1', [userId]);
-        if (user.rows.length === 0) return res.status(404).json({ error: 'المستخدم غير موجود' });
-        if (user.rows[0].is_verified)  return res.status(400).json({ error: 'الحساب محقق مسبقاً' });
+        const userIdNum = parseInt(userId, 10);
+        if (isNaN(userIdNum)) {
+            return res.status(400).json({ error: 'معرّف مستخدم غير صحيح' });
+        }
+
+        const user = await pool.query('SELECT * FROM users WHERE id = $1', [userIdNum]);
+        if (user.rows.length === 0) {
+            return res.status(404).json({ error: 'المستخدم غير موجود' });
+        }
+        
+        if (user.rows[0].is_verified) {
+            return res.status(400).json({ error: 'الحساب محقق مسبقاً' });
+        }
 
         // Delete old codes
-        await pool.query('DELETE FROM verification_codes WHERE user_id = $1', [userId]);
+        await pool.query('DELETE FROM verification_codes WHERE user_id = $1', [userIdNum]);
 
-        const code      = generateVerificationCode();
+        const code = generateVerificationCode();
         const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
         await pool.query(
             'INSERT INTO verification_codes (user_id, code, expires_at) VALUES ($1, $2, $3)',
-            [userId, code, expiresAt]
+            [userIdNum, code, expiresAt]
         );
 
-        await sendVerificationEmail(user.rows[0].email, code, user.rows[0].name);
-        res.json({ message: 'تم إرسال رمز جديد' });
+        const emailSent = await sendVerificationEmail(user.rows[0].email, code, user.rows[0].name);
+        console.log(`Resend: New code generated for ${user.rows[0].email}, sent: ${emailSent}`);
+        
+        res.json({ message: 'تم إرسال رمز جديد إلى بريدك' });
     } catch (err) {
         console.error('Resend error:', err);
         res.status(500).json({ error: 'فشل إعادة الإرسال' });

@@ -477,12 +477,25 @@
     <div id="toastContainer" class="toast-container"></div>
     <script src="app.js"></script>
     <script>
-        const IS_LOCAL = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
-        const API = IS_LOCAL ? 'http://localhost:5000/api' : '/api';
+        // Detect API base URL - works on both local and Vercel
+        const API = (() => {
+            const hostname = location.hostname;
+            const isDev = hostname === 'localhost' || hostname === '127.0.0.1';
+            
+            if (isDev) {
+                return 'http://localhost:5000/api';
+            } else {
+                // On production (Vercel), use relative paths
+                return '/api';
+            }
+        })();
+
         let currentUserId = null;
         let currentEmail = '';
         let timerInterval = null;
         let resendTimeout = null;
+
+        console.log(`📡 API Base: ${API}`);
 
         /* Email validation */
         function validateEmail(input) {
@@ -509,40 +522,57 @@
             const pass = document.getElementById('reg-pass').value;
             const btn = document.getElementById('regBtn');
 
-            if (!name) { showToast('أدخل اسمك الكامل', 'error'); return; }
+            // Validation
+            if (!name) { 
+                showToast('⚠️ أدخل اسمك الكامل', 'error'); 
+                document.getElementById('reg-name').focus();
+                return; 
+            }
+            
             if (!email.endsWith('@students.hebron.edu')) {
-                showToast('يجب استخدام بريد جامعة الخليل (@students.hebron.edu)', 'error');
+                showToast('⚠️ يجب استخدام بريد جامعة الخليل (@students.hebron.edu)', 'error');
                 document.getElementById('reg-email').classList.add('error');
+                document.getElementById('reg-email').focus();
                 return;
             }
-            if (pass.length < 6) { showToast('كلمة المرور 6 أحرف على الأقل', 'error'); return; }
+            
+            if (pass.length < 6) { 
+                showToast('⚠️ كلمة المرور 6 أحرف على الأقل', 'error');
+                document.getElementById('reg-pass').focus();
+                return; 
+            }
 
             btn.disabled = true;
             btn.textContent = 'جاري التسجيل...';
 
             try {
-                const res = await fetch(`${API}/auth/register`, {
+                const response = await fetch(`${API}/auth/register`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ name, email, password: pass }),
                 });
-                const data = await res.json();
+                
+                const data = await response.json();
 
-                if (!res.ok) {
-                    showToast(data.error || 'فشل التسجيل', 'error');
+                if (!response.ok) {
+                    showToast(data.error || '❌ فشل التسجيل', 'error');
                     btn.disabled = false;
                     btn.textContent = 'إنشاء الحساب ←';
+                    console.error('Register error:', data);
                     return;
                 }
 
                 currentUserId = data.userId;
                 currentEmail = email;
+                console.log(`✅ User registered with ID: ${currentUserId}`);
+                showToast('✅ تم إرسال رمز التحقق إلى بريدك', 'success');
                 slideToOTP(email);
 
             } catch (err) {
-                showToast('خطأ في الاتصال بالخادم', 'error');
+                showToast('❌ خطأ في الاتصال بالخادم. تأكد من الاتصال بالإنترنت', 'error');
                 btn.disabled = false;
                 btn.textContent = 'إنشاء الحساب ←';
+                console.error('Fetch error:', err);
             }
         });
 
@@ -588,35 +618,50 @@
             const boxes = [...document.querySelectorAll('.otp-box')];
             const code = boxes.map(b => b.value).join('');
             const btn = document.getElementById('verifyBtn');
-            if (code.length < 6) return;
+            
+            if (code.length < 6) {
+                showToast('⚠️ أدخل الرمز المكوّن من 6 أرقام', 'error');
+                return;
+            }
 
-            btn.disabled = true; btn.textContent = 'جاري التحقق...';
+            btn.disabled = true;
+            btn.textContent = 'جاري التحقق...';
 
             try {
-                const res = await fetch(`${API}/auth/verify`, {
+                const response = await fetch(`${API}/auth/verify`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ userId: currentUserId, code }),
                 });
-                const data = await res.json();
+                
+                const data = await response.json();
 
-                if (!res.ok) {
-                    boxes.forEach(b => { b.classList.add('error'); b.value = ''; b.classList.remove('filled'); });
+                if (!response.ok) {
+                    boxes.forEach(b => { 
+                        b.classList.add('error'); 
+                        b.value = ''; 
+                        b.classList.remove('filled'); 
+                    });
                     setTimeout(() => boxes.forEach(b => b.classList.remove('error')), 600);
                     boxes[0].focus();
                     document.getElementById('verifyBtn').disabled = true;
-                    showToast(data.error || 'رمز خاطئ أو منتهي الصلاحية', 'error');
-                    btn.disabled = false; btn.textContent = 'تحقق من الحساب ✓';
+                    showToast(data.error || '❌ رمز خاطئ أو منتهي الصلاحية', 'error');
+                    btn.disabled = false;
+                    btn.textContent = 'تحقق من الحساب ✓';
+                    console.error('Verify error:', data);
                     return;
                 }
 
                 clearInterval(timerInterval);
-                showToast('✅ تم التحقق! جاري تحويلك...', 'success');
+                showToast('✅ تم التحقق بنجاح! جاري تحويلك...', 'success');
+                console.log('✅ Email verified successfully');
                 setTimeout(() => { location.href = 'login.html'; }, 1800);
 
             } catch (err) {
-                showToast('خطأ في الاتصال', 'error');
-                btn.disabled = false; btn.textContent = 'تحقق من الحساب ✓';
+                showToast('❌ خطأ في الاتصال بالخادم', 'error');
+                btn.disabled = false;
+                btn.textContent = 'تحقق من الحساب ✓';
+                console.error('Fetch error:', err);
             }
         });
 
@@ -645,21 +690,48 @@
         }
 
         async function resendCode() {
-            if (!currentUserId) return;
+            if (!currentUserId) {
+                showToast('❌ خطأ: لم يتم العثور على معرّف المستخدم', 'error');
+                return;
+            }
+
+            const btn = document.getElementById('resendBtn');
+            btn.disabled = true;
+            btn.textContent = 'جاري الإرسال...';
+
             try {
-                const res = await fetch(`${API}/auth/resend`, {
+                const response = await fetch(`${API}/auth/resend`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ userId: currentUserId }),
                 });
-                const data = await res.json();
-                if (!res.ok) { showToast(data.error || 'فشل إعادة الإرسال', 'error'); return; }
-                showToast('✅ تم إرسال رمز جديد', 'success');
-                startTimer(15 * 60); startResendCountdown(60);
-                document.querySelectorAll('.otp-box').forEach(b => { b.value = ''; b.classList.remove('filled'); });
+                
+                const data = await response.json();
+                
+                if (!response.ok) { 
+                    showToast(data.error || '❌ فشل إعادة الإرسال', 'error');
+                    btn.disabled = false;
+                    btn.textContent = 'إعادة الإرسال';
+                    console.error('Resend error:', data);
+                    return;
+                }
+                
+                showToast('✅ تم إرسال رمز جديد إلى بريدك', 'success');
+                console.log('✅ New verification code sent');
+                startTimer(15 * 60); 
+                startResendCountdown(60);
+                document.querySelectorAll('.otp-box').forEach(b => { 
+                    b.value = ''; 
+                    b.classList.remove('filled'); 
+                });
                 document.getElementById('verifyBtn').disabled = true;
                 document.getElementById('otp0').focus();
-            } catch (e) { showToast('فشل الاتصال', 'error'); }
+            } catch (e) { 
+                showToast('❌ فشل الاتصال بالخادم', 'error');
+                btn.disabled = false;
+                btn.textContent = 'إعادة الإرسال';
+                console.error('Fetch error:', e);
+            }
         }
 
         /* Back */

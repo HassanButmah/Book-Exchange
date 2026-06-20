@@ -16,6 +16,14 @@ const seedDatabase = require('./seed');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Initialize database schema on startup (don't wait for completion in production)
+if (process.env.NODE_ENV !== 'production') {
+    initializeDatabase().catch(err => console.error('Database init error:', err));
+} else {
+    // In production, initialize asynchronously without blocking startup
+    initializeDatabase().catch(err => console.error('Database init error:', err));
+}
+
 // Middleware (must come before routes)
 app.use(cors({
     origin: (origin, callback) => callback(null, true),
@@ -73,18 +81,4 @@ app.use((err, req, res, next) => {
 
 // Export for Vercel serverless
 module.exports = app;
-
-// Start server locally (not on Vercel)
-if (process.env.NODE_ENV !== 'production' || process.env.LOCAL_DEV) {
-    app.listen(PORT, async () => {
-        console.log(`🚀 Server running on http://localhost:${PORT}`);
-        console.log(`📚 HU Book Exchange Backend Started`);
-
-        // Initialize database schema first
-        await initializeDatabase();
-
-        // Then seed database with demo data
-        await seedDatabase();
-    });
-}
 

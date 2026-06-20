@@ -2,20 +2,24 @@
   "version": 2,
   "buildCommand": "npm install",
   "outputDirectory": ".",
+  "builds": [
+    {
+      "src": "server/index.js",
+      "use": "@vercel/node"
+    }
+  ],
   "env": {
     "NODE_ENV": "production"
   },
-  "rewrites": [
+  "routes": [
     {
-      "source": "/api/(.*)",
-      "destination": "server/index.js"
+      "src": "/api/(.*)",
+      "dest": "server/index.js"
     },
     {
-      "source": "/uploads/(.*)",
-      "destination": "server/index.js"
-    }
-  ],
-  "routes": [
+      "src": "/uploads/(.*)",
+      "dest": "server/index.js"
+    },
     {
       "src": "/frontend/(.*)",
       "dest": "/frontend/$1"

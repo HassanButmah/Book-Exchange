@@ -9,14 +9,18 @@
 </head>
 
 <!-- Floating Chatbot Button -->
-<div class="chatbot-bubble" onclick="toggleChatbot()">🤖</div>
+<div class="chatbot-bubble" onclick="toggleChatbot()">
+    <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+</div>
 <div class="chatbot-box hidden" id="chatbotBox">
     <div class="chatbot-header">
-        <span>Live Assistant</span>
-        <button onclick="toggleChatbot()">✖</button>
+        <span>المساعد الذكي</span>
+        <button onclick="toggleChatbot()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
     </div>
     <div class="chatbot-messages" id="chatbotMessages">
-        <div class="bot-msg">👋 اسألني عن أي كتاب موجود في النظام</div>
+        <div class="bot-msg">اسألني عن أي كتاب موجود في النظام</div>
     </div>
     <div class="chatbot-input">
         <input type="text" id="chatbotInput" placeholder="اكتب سؤالك...">
@@ -29,7 +33,10 @@
 
     <div class="page-container">
         <div class="page-header">
-            <h1>✏️ تعديل الكتاب</h1>
+            <h1>
+                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                تعديل الكتاب
+            </h1>
             <p>قم بتحديث بيانات كتابك وحالة التوفر</p>
         </div>
 
@@ -75,7 +82,7 @@
 
                 <!-- Unavailable warning banner -->
                 <div class="status-warning hidden" id="unavailableWarning">
-                    <span>⚠️</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#856404" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
                     <p>عند اختيار <strong>غير متوفر</strong>، سيُخفى الكتاب فوراً من صفحة تبادل الكتب ولن يظهر لأي مستخدم آخر.</p>
                 </div>
 

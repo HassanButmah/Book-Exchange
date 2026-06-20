@@ -1,6 +1,6 @@
 const pool = require('../db');
-const path = require('path');
-const fs = require('fs');
+const { uploadToCloudinary } = require('../middleware/upload');
+const { v2: cloudinary } = require('cloudinary');
 
 // ── Helpers ──────────────────────────────────────────────────────────────
 const VALID_STATUSES = ['available', 'reserved', 'unavailable'];
@@ -269,18 +269,25 @@ async function uploadBookImages(req, res) {
 
         const inserted = [];
         for (const file of req.files) {
-            const imagePath = `/uploads/${file.filename}`;
+            // Upload buffer to Cloudinary
+            const cloudUrl = await uploadToCloudinary(file.buffer, 'book-exchange');
+
             const row = await pool.query(
                 'INSERT INTO book_images (book_id, image_path, display_order) VALUES ($1, $2, $3) RETURNING *',
-                [id, imagePath, order++]
+                [id, cloudUrl, order++]
             );
             inserted.push(row.rows[0]);
+        }
+
+        // Also update the book's image_url to the first uploaded image
+        if (inserted.length > 0) {
+            await pool.query('UPDATE books SET image_url = $1 WHERE id = $2', [inserted[0].image_path, id]);
         }
 
         res.status(201).json({ message: 'تم رفع الصور بنجاح', images: inserted });
     } catch (err) {
         console.error('uploadBookImages error:', err);
-        res.status(500).json({ error: 'فشل رفع الصور' });
+        res.status(500).json({ error: 'فشل رفع الصور: ' + err.message });
     }
 }
 
@@ -301,9 +308,19 @@ async function deleteBookImage(req, res) {
 
         const imgRow = imgResult.rows[0];
 
-        // Delete file from disk
-        const filePath = path.join(__dirname, '..', imgRow.image_path);
-        if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+        // If it's a Cloudinary URL, delete from Cloudinary too
+        if (imgRow.image_path && imgRow.image_path.includes('cloudinary.com')) {
+            try {
+                // Extract public_id from URL (last path segment without extension)
+                const parts = imgRow.image_path.split('/');
+                const fileWithExt = parts[parts.length - 1];
+                const folder = parts[parts.length - 2];
+                const publicId = `${folder}/${fileWithExt.split('.')[0]}`;
+                await cloudinary.uploader.destroy(publicId);
+            } catch (cloudErr) {
+                console.warn('Cloudinary delete warning:', cloudErr.message);
+            }
+        }
 
         await pool.query('DELETE FROM book_images WHERE id = $1', [imageId]);
         res.json({ message: 'تم حذف الصورة' });

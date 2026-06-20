@@ -1,31 +1,22 @@
+const { v2: cloudinary } = require('cloudinary');
 const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
 
-// Ensure uploads directory exists
-const uploadsDir = path.join(__dirname, '../uploads');
-if (!fs.existsSync(uploadsDir)) {
-    fs.mkdirSync(uploadsDir, { recursive: true });
-}
-
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, uploadsDir);
-    },
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-        const ext = path.extname(file.originalname).toLowerCase();
-        cb(null, `book-${uniqueSuffix}${ext}`);
-    },
+// Configure Cloudinary (credentials from env vars)
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key:    process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
+// Use memory storage — no disk writes (Vercel-safe)
+const storage = multer.memoryStorage();
+
 const fileFilter = (req, file, cb) => {
-    const allowed = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
-    const ext = path.extname(file.originalname).toLowerCase();
-    if (allowed.includes(ext)) {
+    const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    if (allowed.includes(file.mimetype)) {
         cb(null, true);
     } else {
-        cb(new Error('نوع الملف غير مدعوم. استخدم JPG أو PNG أو WEBP'), false);
+        cb(new Error('نوع الملف غير مسموح. استخدم JPG أو PNG أو WEBP'), false);
     }
 };
 
@@ -34,8 +25,27 @@ const upload = multer({
     fileFilter,
     limits: {
         fileSize: 5 * 1024 * 1024, // 5 MB per file
-        files: 5,                   // max 5 images
+        files: 5,
     },
 });
 
-module.exports = upload;
+/**
+ * Upload a buffer to Cloudinary and return the secure URL.
+ * @param {Buffer} buffer
+ * @param {string} folder
+ * @returns {Promise<string>} secure_url
+ */
+async function uploadToCloudinary(buffer, folder = 'book-exchange') {
+    return new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+            { folder, resource_type: 'image', quality: 'auto', fetch_format: 'auto' },
+            (err, result) => {
+                if (err) return reject(err);
+                resolve(result.secure_url);
+            }
+        );
+        stream.end(buffer);
+    });
+}
+
+module.exports = { upload, uploadToCloudinary };

@@ -1,4 +1,3 @@
-<!--
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -7,18 +6,22 @@
     <title>طلبات التبادل - تبادل الكتب</title>
     <link rel="stylesheet" href="style.css">
 </head>
+
+<!-- Floating Chatbot Button -->
 <div class="chatbot-bubble" onclick="toggleChatbot()">
-    🤖
+    <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
 </div>
 
 <div class="chatbot-box hidden" id="chatbotBox">
     <div class="chatbot-header">
-        <span>Live Assistant</span>
-        <button onclick="toggleChatbot()">✖</button>
+        <span>المساعد الذكي</span>
+        <button onclick="toggleChatbot()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
     </div>
 
     <div class="chatbot-messages" id="chatbotMessages">
-        <div class="bot-msg">👋 اسألني عن أي كتاب موجود في النظام</div>
+        <div class="bot-msg">اسألني عن أي كتاب موجود في النظام</div>
     </div>
 
     <div class="chatbot-input">
@@ -26,59 +29,35 @@
         <button onclick="sendChatbotMessage()">إرسال</button>
     </div>
 </div>
+
 <body>
-    <nav class="navbar">
-  <div class="nav-container">
-
-    <a href="marketplace.html" class="nav-logo">
-      <span>📚</span>
-      <span>تبادل الكتب</span>
-    </a>
-
-    <div class="menu-toggle" onclick="toggleMenu()">☰</div>
-
-    <ul class="nav-links" id="navLinks">
-
-      <li><a href="marketplace.html">الرئيسية</a></li>
-
-      <li class="auth-only">
-        <a href="add-book.html">إضافة كتاب</a>
-      </li>
-
-      <li class="auth-only">
-        <a href="my-books.html">كتبي</a>
-      </li>
-
-      <li class="auth-only">
-        <a href="messages.html">💬 الرسائل</a>
-      </li>
-
-    
-
-      <li id="logoutBtn" class="hidden">
-        <button onclick="logout()" class="btn-logout">تسجيل الخروج</button>
-      </li>
-
-    </ul>
-  </div>
-</nav>
+    <!-- Navbar injected by navbar.js -->
 
     <div class="page-container">
         <div class="page-header">
-            <h1>💬 طلبات التبادل</h1>
+            <h1>
+                <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+                طلبات التبادل
+            </h1>
             <p>إدارة طلبات تبادل الكتب الخاصة بك</p>
         </div>
 
         <div class="exchanges-container">
             <div class="exchanges-section">
-                <h2>⏳ الطلبات المعلقة</h2>
+                <h2>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    الطلبات المعلقة
+                </h2>
                 <div id="pendingExchanges" class="exchanges-list">
                     <p>جاري تحميل الطلبات...</p>
                 </div>
             </div>
 
             <div class="exchanges-section">
-                <h2>✅ التبادلات المكتملة</h2>
+                <h2>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#11753b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle"><polyline points="20 6 9 17 4 12"/></svg>
+                    التبادلات المكتملة
+                </h2>
                 <div id="completedExchanges" class="exchanges-list">
                     <p>لا توجد تبادلات مكتملة بعد</p>
                 </div>
@@ -88,7 +67,7 @@
 
     <div id="toastContainer" class="toast-container"></div>
 
+    <script src="navbar.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
--->

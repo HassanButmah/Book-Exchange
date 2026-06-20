@@ -112,11 +112,16 @@ async function initializeDatabase() {
             CREATE TABLE IF NOT EXISTS book_images (
                 id SERIAL PRIMARY KEY,
                 book_id INTEGER NOT NULL REFERENCES books(id) ON DELETE CASCADE,
-                image_path VARCHAR(500) NOT NULL,
+                image_path TEXT NOT NULL,
                 display_order INTEGER DEFAULT 0,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
         `);
+
+        // Migrate existing VARCHAR(500) column to TEXT (safe to run repeatedly)
+        await pool.query(`
+            ALTER TABLE book_images ALTER COLUMN image_path TYPE TEXT;
+        `).catch(() => {}); // ignore if already TEXT
 
         console.log('✓ Database schema initialized');
     } catch (err) {

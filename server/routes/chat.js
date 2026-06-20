@@ -21,8 +21,9 @@ router.post('/', async (req, res) => {
 
         const groqApiKey = process.env.GROQ_API_KEY;
         if (!groqApiKey) {
-            return res.status(500).json({
-                reply: 'خطأ: مفتاح API لم يتم تكوينه. اتصل بمسؤول النظام.'
+            // Return friendly response instead of 500 error
+            return res.json({
+                reply: 'معذرة، المساعد الذكي غير متاح حالياً. يمكنك البحث عن الكتب مباشرة من المتجر.'
             });
         }
 
@@ -86,8 +87,8 @@ ${message}
 
         if (!llmResponse.ok) {
             console.error('Groq API Error:', llmData);
-            return res.status(500).json({
-                reply: 'خطأ في معالجة الرسالة. حاول مرة أخرى.'
+            return res.json({
+                reply: 'معذرة، واجهت مشكلة في معالجة سؤالك. حاول مرة أخرى.'
             });
         }
 
@@ -319,8 +320,8 @@ ${message}
 
         console.error('CHAT ERROR:', err);
 
-        return res.status(500).json({
-            reply: 'حدث خطأ في الخادم. تأكد من إعدادات API.'
+        return res.json({
+            reply: 'معذرة، حدث خطأ غير متوقع. حاول مرة أخرى لاحقاً.'
         });
     }
 });

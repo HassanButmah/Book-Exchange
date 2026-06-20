@@ -224,8 +224,8 @@ function logout() {
     sessionStorage.clear();
     currentUser = null;
     // Replace history entry so the back button can't re-expose authenticated pages
-    history.replaceState(null, '', 'login.html');
-    location.replace('login.html');
+    history.replaceState(null, '', 'index.html');
+    location.replace('index.html');
 }
 
 // ==================== BOOKS ====================

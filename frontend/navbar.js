@@ -40,8 +40,8 @@
         localStorage.removeItem('user');
         sessionStorage.clear();
         // Replace current history entry so back-button skips authenticated pages
-        history.replaceState(null, '', 'login.html');
-        location.replace('login.html');
+        history.replaceState(null, '', 'index.html');
+        location.replace('index.html');
     };
 
     // ── toggle mobile menu ───────────────────────────────────────────────────

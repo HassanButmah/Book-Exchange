@@ -34,7 +34,7 @@ router.post('/', async (req, res) => {
                         'Authorization': `Bearer ${groqApiKey}`
                     },
                     body: JSON.stringify({
-                        model: 'mixtral-8x7b-32768',
+                        model: 'llama-3.3-70b-versatile',
                         messages: [{
                             role: 'user',
                             content: `أنت مساعد لمنصة تبادل الكتب الجامعية. 
@@ -255,7 +255,7 @@ ${message}
                         'Authorization': `Bearer ${groqApiKey}`
                     },
                     body: JSON.stringify({
-                        model: 'mixtral-8x7b-32768',
+                        model: 'llama-3.3-70b-versatile',
                         messages: [{
                             role: 'user',
                             content: `أنت مساعد ذكي لمنصة تبادل الكتب الجامعية.

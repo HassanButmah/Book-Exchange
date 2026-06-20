@@ -1,5 +1,12 @@
 {
   "version": 2,
+  "functions": {
+    "server/index.js": {
+      "memory": 1024,
+      "maxDuration": 30,
+      "runtime": "nodejs18.x"
+    }
+  },
   "headers": [
     {
       "source": "/(.*\\.html)",
@@ -24,11 +31,13 @@
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "server/index.js"
+      "dest": "server/index.js",
+      "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
     },
     {
       "src": "/uploads/(.*)",
-      "dest": "server/index.js"
+      "dest": "server/index.js",
+      "methods": ["GET", "POST"]
     },
     {
       "src": "/(.*\\.(css|js|png|jpg|jpeg|gif|svg|ico|webp|woff|woff2|ttf))",

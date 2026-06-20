@@ -1153,6 +1153,8 @@ function goToEditBook(bookId) {
 }
 
 /** Called on DOMContentLoaded when page === 'edit-book.html' */
+let editSelectedFiles = [];
+
 async function initEditBookPage() {
     const params  = new URLSearchParams(window.location.search);
     const bookId  = params.get('id');
@@ -1176,29 +1178,21 @@ async function initEditBookPage() {
 
         // Ensure the logged-in user owns the book
         const user = JSON.parse(localStorage.getItem('user') || '{}');
-        if (book.owner_id !== user.id) {
+        if (book.owner_id !== user.id && user.role !== 'admin') {
             showToast('ليس لديك صلاحية تعديل هذا الكتاب', 'error');
             setTimeout(() => window.location.href = 'my-books.html', 1500);
             return;
         }
 
-        // Populate form
+        // Populate text fields
         document.getElementById('editTitle').value       = book.title       || '';
         document.getElementById('editDescription').value = book.description || '';
         document.getElementById('editCondition').value   = book.condition   || '';
         document.getElementById('editStatus').value      = book.status      || 'available';
-        document.getElementById('editImageUrl').value    = book.image_url   || '';
 
-        const imgUrl = sanitizeImageUrl(book.image_url);
-        if (imgUrl) {
-            document.getElementById('editPreviewImg').src = imgUrl;
-            document.getElementById('editImagePreview').classList.remove('hidden');
-        } else {
-            document.getElementById('editPreviewImg').src = '';
-            document.getElementById('editImagePreview').classList.add('hidden');
-        }
+        // Render existing images with delete buttons
+        renderExistingImages(book.image_objects || [], bookId, token);
 
-        // Handle status change warnings
         updateStatusHint();
 
     } catch (err) {
@@ -1207,25 +1201,86 @@ async function initEditBookPage() {
         return;
     }
 
-    // Image preview
-    document.getElementById('editImageUrl')?.addEventListener('input', (e) => {
-        const url     = e.target.value.trim();
-        const preview = document.getElementById('editImagePreview');
-        const img     = document.getElementById('editPreviewImg');
-        if (url) {
-            img.src = url;
-            img.onerror = () => preview.classList.add('hidden');
-            preview.classList.remove('hidden');
-        } else {
-            preview.classList.add('hidden');
-        }
+    // New image selection
+    document.getElementById('editBookImages')?.addEventListener('change', function() {
+        Array.from(this.files).forEach(f => {
+            if (editSelectedFiles.length < 5 &&
+                !editSelectedFiles.some(x => x.name === f.name && x.size === f.size)) {
+                editSelectedFiles.push(f);
+            }
+        });
+        this.value = '';
+        renderEditNewPreviews();
     });
 
-    // Status dropdown – show/hide warning banner
+    // Status dropdown
     document.getElementById('editStatus')?.addEventListener('change', updateStatusHint);
 
     // Form submit
     document.getElementById('editBookForm')?.addEventListener('submit', (e) => handleEditBook(e, bookId));
+}
+
+function renderExistingImages(imageObjects, bookId, token) {
+    const grid = document.getElementById('existingImagesGrid');
+    if (!grid) return;
+
+    if (!imageObjects || imageObjects.length === 0) {
+        grid.style.display = 'none';
+        return;
+    }
+
+    grid.style.display = 'grid';
+    grid.innerHTML = imageObjects.map(img => `
+        <div class="image-preview-item" id="existing-img-${img.id}" style="position:relative">
+            <img src="${sanitizeImageUrl(img.path) || img.path}" alt="صورة" style="width:100%;height:100%;object-fit:cover;border-radius:8px">
+            <button type="button" class="remove-img-btn" onclick="deleteExistingImage(${img.id}, ${bookId})"
+                style="position:absolute;top:4px;left:4px;background:#e53e3e;color:white;border:none;border-radius:50%;width:24px;height:24px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center">
+                ✕
+            </button>
+        </div>
+    `).join('');
+}
+
+async function deleteExistingImage(imageId, bookId) {
+    const token = localStorage.getItem('token');
+    try {
+        const res = await fetch(`${API_BASE_URL}/books/${bookId}/images/${imageId}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.ok) {
+            document.getElementById(`existing-img-${imageId}`)?.remove();
+            showToast('تم حذف الصورة', 'success');
+            // Hide grid if empty
+            const grid = document.getElementById('existingImagesGrid');
+            if (grid && grid.children.length === 0) grid.style.display = 'none';
+        } else {
+            showToast('فشل حذف الصورة', 'error');
+        }
+    } catch (err) {
+        showToast('خطأ في الاتصال', 'error');
+    }
+}
+
+function renderEditNewPreviews() {
+    const grid = document.getElementById('editImagePreviewGrid');
+    if (!grid) return;
+    if (editSelectedFiles.length === 0) { grid.classList.add('hidden'); grid.innerHTML = ''; return; }
+    grid.classList.remove('hidden');
+    grid.innerHTML = editSelectedFiles.map((f, i) => `
+        <div class="image-preview-item" style="position:relative">
+            <img src="${URL.createObjectURL(f)}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:8px">
+            <button type="button" class="remove-img-btn" onclick="removeEditNewFile(${i})"
+                style="position:absolute;top:4px;left:4px;background:#e53e3e;color:white;border:none;border-radius:50%;width:24px;height:24px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center">
+                ✕
+            </button>
+        </div>
+    `).join('');
+}
+
+function removeEditNewFile(index) {
+    editSelectedFiles.splice(index, 1);
+    renderEditNewPreviews();
 }
 
 function updateStatusHint() {
@@ -1258,19 +1313,19 @@ async function handleEditBook(e, bookId) {
     const description = document.getElementById('editDescription').value.trim();
     const condition   = document.getElementById('editCondition').value;
     const status      = document.getElementById('editStatus').value;
-    const image_url   = document.getElementById('editImageUrl').value.trim() || null;
 
     const submitBtn = document.getElementById('editSubmitBtn');
     if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'جاري الحفظ...'; }
 
     try {
+        // Step 1: Save book metadata
         const res = await fetch(`${API_BASE_URL}/books/${bookId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`,
             },
-            body: JSON.stringify({ title, description, condition, status, image_url }),
+            body: JSON.stringify({ title, description, condition, status }),
         });
 
         const data = await res.json();
@@ -1280,7 +1335,24 @@ async function handleEditBook(e, bookId) {
             return;
         }
 
-        // Custom success message when hiding
+        // Step 2: Upload any new images as base64
+        if (editSelectedFiles.length > 0) {
+            if (submitBtn) submitBtn.textContent = 'جاري رفع الصور...';
+            const base64Images = [];
+            for (const file of editSelectedFiles) {
+                base64Images.push(await compressImage(file, 900, 0.78));
+            }
+            await fetch(`${API_BASE_URL}/books/${bookId}/images/base64`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify({ images: base64Images }),
+            });
+            editSelectedFiles = [];
+        }
+
         const msg = status === 'unavailable'
             ? 'تم إخفاء الكتاب من قائمة التبادل بنجاح.'
             : 'تم تحديث الكتاب بنجاح!';
@@ -1295,6 +1367,7 @@ async function handleEditBook(e, bookId) {
         if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'حفظ التعديلات'; }
     }
 }
+
 
 // ==================== ADMIN PAGE ====================
 

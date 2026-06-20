@@ -79,7 +79,11 @@ async function getBook(req, res) {
                 COALESCE(
                     JSON_AGG(bi.image_path ORDER BY bi.display_order) FILTER (WHERE bi.id IS NOT NULL),
                     '[]'
-                ) AS images
+                ) AS images,
+                COALESCE(
+                    JSON_AGG(JSON_BUILD_OBJECT('id', bi.id, 'path', bi.image_path) ORDER BY bi.display_order) FILTER (WHERE bi.id IS NOT NULL),
+                    '[]'
+                ) AS image_objects
              FROM books b
              JOIN users u ON u.id = b.owner_id
              LEFT JOIN book_images bi ON bi.book_id = b.id
@@ -256,7 +260,45 @@ async function deleteBook(req, res) {
     }
 }
 
-// ── Upload images for a book ───────────────────────────────────────────────
+// ── Upload images for a book (base64 JSON) ─────────────────────────────
+async function uploadBookImagesBase64(req, res) {
+    try {
+        const { id } = req.params;
+        const { images } = req.body;
+
+        const existing = await pool.query('SELECT * FROM books WHERE id = $1', [id]);
+        if (existing.rows.length === 0) return res.status(404).json({ error: 'الكتاب غير موجود' });
+        if (existing.rows[0].owner_id !== req.user.id && req.user.role !== 'admin') {
+            return res.status(403).json({ error: 'ليس لديك صلاحية' });
+        }
+
+        if (!Array.isArray(images) || images.length === 0) {
+            return res.status(400).json({ error: 'لم يتم إرسال أي صور' });
+        }
+
+        const orderResult = await pool.query(
+            'SELECT COALESCE(MAX(display_order), -1) AS max_order FROM book_images WHERE book_id = $1',
+            [id]
+        );
+        let order = orderResult.rows[0].max_order + 1;
+
+        const inserted = [];
+        for (const base64 of images) {
+            const row = await pool.query(
+                'INSERT INTO book_images (book_id, image_path, display_order) VALUES ($1, $2, $3) RETURNING *',
+                [id, base64, order++]
+            );
+            inserted.push(row.rows[0]);
+        }
+
+        res.status(201).json({ message: 'تم رفع الصور بنجاح', images: inserted });
+    } catch (err) {
+        console.error('uploadBookImagesBase64 error:', err.message);
+        res.status(500).json({ error: 'فشل رفع الصور: ' + err.message });
+    }
+}
+
+// ── Upload images for a book (multipart, kept for compatibility) ───────────
 async function uploadBookImages(req, res) {
     try {
         const { id } = req.params;
@@ -351,5 +393,6 @@ module.exports = {
     searchBooks,
     getUserBooks,
     uploadBookImages,
+    uploadBookImagesBase64,
     deleteBookImage,
 };

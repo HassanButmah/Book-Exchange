@@ -50,9 +50,11 @@ function checkAuthStatus() {
     const token = localStorage.getItem('token');
     const page = getCurrentPage();
 
-    const protectedPages = ['add-book.html', 'my-books.html', 'messages.html', 'edit-book.html', 'admin.html', 'marketplace.html', 'exchanges.html'];
+    // Only public pages (no authentication required)
+    const publicPages = ['index.html', 'login.html', 'register.html'];
 
-    if (protectedPages.includes(page) && !token) {
+    // Protect all pages EXCEPT public ones
+    if (!publicPages.includes(page) && !token) {
         window.location.href = 'login.html';
     }
 }

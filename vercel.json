@@ -1,17 +1,18 @@
 {
   "version": 2,
   "buildCommand": "npm install",
-  "rewrites": [
+  "env": {
+    "NODE_ENV": "production"
+  },
+  "routes": [
     {
-      "source": "/api/(.*)",
-      "destination": "server/index.js"
+      "src": "/api/(.*)",
+      "dest": "server/index.js"
     },
     {
-      "source": "/uploads/(.*)",
-      "destination": "server/index.js"
-    }
-  ],
-  "routes": [
+      "src": "/uploads/(.*)",
+      "dest": "server/index.js"
+    },
     {
       "src": "/frontend/(.*)",
       "dest": "/frontend/$1"
@@ -21,7 +22,7 @@
       "dest": "/frontend/$1"
     },
     {
-      "src": "/(.*\\.html)",
+      "src": "/(.*\\.html)$",
       "dest": "/frontend/$1"
     },
     {

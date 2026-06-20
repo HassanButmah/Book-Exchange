@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const chatRoutes = require('./routes/chat');
 const bodyParser = require('body-parser');
+const path = require('path');
 require('dotenv').config();
 
 const authRoutes = require('./routes/auth');
@@ -16,13 +17,8 @@ const seedDatabase = require('./seed');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Initialize database schema on startup (don't wait for completion in production)
-if (process.env.NODE_ENV !== 'production') {
-    initializeDatabase().catch(err => console.error('Database init error:', err));
-} else {
-    // In production, initialize asynchronously without blocking startup
-    initializeDatabase().catch(err => console.error('Database init error:', err));
-}
+// Initialize database schema on startup
+initializeDatabase().catch(err => console.error('Database init error:', err));
 
 // Middleware (must come before routes)
 app.use(cors({
@@ -42,7 +38,7 @@ app.use(bodyParser.json({ limit: '20mb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '20mb' }));
 
 // Serve uploaded images as static files
-app.use('/uploads', express.static(require('path').join(__dirname, 'uploads')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Routes
 app.use('/api/chat', chatRoutes);
@@ -82,3 +78,12 @@ app.use((err, req, res, next) => {
 // Export for Vercel serverless
 module.exports = app;
 
+
+
+// Start server locally (not on Vercel)
+if (process.env.NODE_ENV !== 'production' || process.env.LOCAL_DEV) {
+    app.listen(PORT, () => {
+        console.log(`🚀 Server running on http://localhost:${PORT}`);
+        console.log(`📚 HU Book Exchange Backend Started`);
+    });
+}

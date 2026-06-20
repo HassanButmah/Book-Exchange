@@ -497,6 +497,25 @@
 
         console.log(`📡 API Base: ${API}`);
 
+        // Define showToast locally if not defined in app.js
+        if (typeof showToast === 'undefined') {
+            function showToast(message, type = 'info') {
+                const toastContainer = document.getElementById('toastContainer');
+                if (!toastContainer) return;
+
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                toast.textContent = message;
+
+                toastContainer.appendChild(toast);
+
+                setTimeout(() => {
+                    toast.remove();
+                }, 3000);
+            }
+            window.showToast = showToast;
+        }
+
         /* Email validation */
         function validateEmail(input) {
             const val = input.value.trim();
@@ -515,65 +534,75 @@
         }
 
         /* Register submit */
-        document.getElementById('registerForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const name = document.getElementById('reg-name').value.trim();
-            const email = document.getElementById('reg-email').value.trim().toLowerCase();
-            const pass = document.getElementById('reg-pass').value;
-            const btn = document.getElementById('regBtn');
-
-            // Validation
-            if (!name) { 
-                showToast('⚠️ أدخل اسمك الكامل', 'error'); 
-                document.getElementById('reg-name').focus();
-                return; 
-            }
-            
-            if (!email.endsWith('@students.hebron.edu')) {
-                showToast('⚠️ يجب استخدام بريد جامعة الخليل (@students.hebron.edu)', 'error');
-                document.getElementById('reg-email').classList.add('error');
-                document.getElementById('reg-email').focus();
+        document.addEventListener('DOMContentLoaded', function() {
+            const registerForm = document.getElementById('registerForm');
+            if (!registerForm) {
+                console.error('registerForm not found!');
                 return;
             }
-            
-            if (pass.length < 6) { 
-                showToast('⚠️ كلمة المرور 6 أحرف على الأقل', 'error');
-                document.getElementById('reg-pass').focus();
-                return; 
-            }
 
-            btn.disabled = true;
-            btn.textContent = 'جاري التسجيل...';
-
-            try {
-                const response = await fetch(`${API}/auth/register`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, email, password: pass }),
-                });
+            registerForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                console.log('Form submitted!');
                 
-                const data = await response.json();
+                const name = document.getElementById('reg-name').value.trim();
+                const email = document.getElementById('reg-email').value.trim().toLowerCase();
+                const pass = document.getElementById('reg-pass').value;
+                const btn = document.getElementById('regBtn');
 
-                if (!response.ok) {
-                    showToast(data.error || '❌ فشل التسجيل', 'error');
-                    btn.disabled = false;
-                    btn.textContent = 'إنشاء الحساب ←';
-                    console.error('Register error:', data);
+                // Validation
+                if (!name) { 
+                    showToast('⚠️ أدخل اسمك الكامل', 'error'); 
+                    document.getElementById('reg-name').focus();
+                    return; 
+                }
+                
+                if (!email.endsWith('@students.hebron.edu')) {
+                    showToast('⚠️ يجب استخدام بريد جامعة الخليل (@students.hebron.edu)', 'error');
+                    document.getElementById('reg-email').classList.add('error');
+                    document.getElementById('reg-email').focus();
                     return;
                 }
+                
+                if (pass.length < 6) { 
+                    showToast('⚠️ كلمة المرور 6 أحرف على الأقل', 'error');
+                    document.getElementById('reg-pass').focus();
+                    return; 
+                }
 
-                currentUserId = data.userId;
-                currentEmail = email;
-                console.log(`✅ User registered with ID: ${currentUserId}`);
-                showToast('✅ تم إرسال رمز التحقق إلى بريدك', 'success');
-                slideToOTP(email);
+                btn.disabled = true;
+                btn.textContent = 'جاري التسجيل...';
 
-            } catch (err) {
-                showToast('❌ خطأ في الاتصال بالخادم. تأكد من الاتصال بالإنترنت', 'error');
-                btn.disabled = false;
-                btn.textContent = 'إنشاء الحساب ←';
-                console.error('Fetch error:', err);
-            }
+                try {
+                    const response = await fetch(`${API}/auth/register`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name, email, password: pass }),
+                    });
+                    
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        showToast(data.error || '❌ فشل التسجيل', 'error');
+                        btn.disabled = false;
+                        btn.textContent = 'إنشاء الحساب ←';
+                        console.error('Register error:', data);
+                        return;
+                    }
+
+                    currentUserId = data.userId;
+                    currentEmail = email;
+                    console.log(`✅ User registered with ID: ${currentUserId}`);
+                    showToast('✅ تم إرسال رمز التحقق إلى بريدك', 'success');
+                    slideToOTP(email);
+
+                } catch (err) {
+                    showToast('❌ خطأ في الاتصال بالخادم. تأكد من الاتصال بالإنترنت', 'error');
+                    btn.disabled = false;
+                    btn.textContent = 'إنشاء الحساب ←';
+                    console.error('Fetch error:', err);
+                }
+            });
         });
 
         /* Slide to OTP */
@@ -586,82 +615,90 @@
         }
 
         /* OTP input logic */
-        document.getElementById('otpBoxes').addEventListener('input', (e) => {
-            const boxes = [...document.querySelectorAll('.otp-box')];
-            const box = e.target;
-            const idx = boxes.indexOf(box);
-            box.value = box.value.replace(/\D/g, '');
-            if (box.value) { box.classList.add('filled'); if (idx < 5) boxes[idx + 1].focus(); }
-            else { box.classList.remove('filled'); }
-            document.getElementById('verifyBtn').disabled = boxes.map(b => b.value).join('').length < 6;
-        });
+        document.addEventListener('DOMContentLoaded', function() {
+            const otpBoxes = document.getElementById('otpBoxes');
+            if (!otpBoxes) return;
 
-        document.getElementById('otpBoxes').addEventListener('keydown', (e) => {
-            const boxes = [...document.querySelectorAll('.otp-box')];
-            const idx = boxes.indexOf(e.target);
-            if (e.key === 'Backspace' && !e.target.value && idx > 0) {
-                boxes[idx - 1].focus(); boxes[idx - 1].value = ''; boxes[idx - 1].classList.remove('filled');
-            }
-        });
+            otpBoxes.addEventListener('input', (e) => {
+                const boxes = [...document.querySelectorAll('.otp-box')];
+                const box = e.target;
+                const idx = boxes.indexOf(box);
+                box.value = box.value.replace(/\D/g, '');
+                if (box.value) { box.classList.add('filled'); if (idx < 5) boxes[idx + 1].focus(); }
+                else { box.classList.remove('filled'); }
+                document.getElementById('verifyBtn').disabled = boxes.map(b => b.value).join('').length < 6;
+            });
 
-        document.getElementById('otpBoxes').addEventListener('paste', (e) => {
-            e.preventDefault();
-            const pasted = (e.clipboardData.getData('text') || '').replace(/\D/g, '').slice(0, 6);
-            const boxes = [...document.querySelectorAll('.otp-box')];
-            pasted.split('').forEach((ch, i) => { if (boxes[i]) { boxes[i].value = ch; boxes[i].classList.add('filled'); } });
-            (boxes[pasted.length] || boxes[5]).focus();
-            document.getElementById('verifyBtn').disabled = pasted.length < 6;
-        });
-
-        /* Verify */
-        document.getElementById('verifyBtn').addEventListener('click', async () => {
-            const boxes = [...document.querySelectorAll('.otp-box')];
-            const code = boxes.map(b => b.value).join('');
-            const btn = document.getElementById('verifyBtn');
-            
-            if (code.length < 6) {
-                showToast('⚠️ أدخل الرمز المكوّن من 6 أرقام', 'error');
-                return;
-            }
-
-            btn.disabled = true;
-            btn.textContent = 'جاري التحقق...';
-
-            try {
-                const response = await fetch(`${API}/auth/verify`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ userId: currentUserId, code }),
-                });
-                
-                const data = await response.json();
-
-                if (!response.ok) {
-                    boxes.forEach(b => { 
-                        b.classList.add('error'); 
-                        b.value = ''; 
-                        b.classList.remove('filled'); 
-                    });
-                    setTimeout(() => boxes.forEach(b => b.classList.remove('error')), 600);
-                    boxes[0].focus();
-                    document.getElementById('verifyBtn').disabled = true;
-                    showToast(data.error || '❌ رمز خاطئ أو منتهي الصلاحية', 'error');
-                    btn.disabled = false;
-                    btn.textContent = 'تحقق من الحساب ✓';
-                    console.error('Verify error:', data);
-                    return;
+            otpBoxes.addEventListener('keydown', (e) => {
+                const boxes = [...document.querySelectorAll('.otp-box')];
+                const idx = boxes.indexOf(e.target);
+                if (e.key === 'Backspace' && !e.target.value && idx > 0) {
+                    boxes[idx - 1].focus(); boxes[idx - 1].value = ''; boxes[idx - 1].classList.remove('filled');
                 }
+            });
 
-                clearInterval(timerInterval);
-                showToast('✅ تم التحقق بنجاح! جاري تحويلك...', 'success');
-                console.log('✅ Email verified successfully');
-                setTimeout(() => { location.href = 'login.html'; }, 1800);
+            otpBoxes.addEventListener('paste', (e) => {
+                e.preventDefault();
+                const pasted = (e.clipboardData.getData('text') || '').replace(/\D/g, '').slice(0, 6);
+                const boxes = [...document.querySelectorAll('.otp-box')];
+                pasted.split('').forEach((ch, i) => { if (boxes[i]) { boxes[i].value = ch; boxes[i].classList.add('filled'); } });
+                (boxes[pasted.length] || boxes[5]).focus();
+                document.getElementById('verifyBtn').disabled = pasted.length < 6;
+            });
 
-            } catch (err) {
-                showToast('❌ خطأ في الاتصال بالخادم', 'error');
-                btn.disabled = false;
-                btn.textContent = 'تحقق من الحساب ✓';
-                console.error('Fetch error:', err);
+            // Verify button
+            const verifyBtn = document.getElementById('verifyBtn');
+            if (verifyBtn) {
+                verifyBtn.addEventListener('click', async () => {
+                    const boxes = [...document.querySelectorAll('.otp-box')];
+                    const code = boxes.map(b => b.value).join('');
+                    const btn = document.getElementById('verifyBtn');
+                    
+                    if (code.length < 6) {
+                        showToast('⚠️ أدخل الرمز المكوّن من 6 أرقام', 'error');
+                        return;
+                    }
+
+                    btn.disabled = true;
+                    btn.textContent = 'جاري التحقق...';
+
+                    try {
+                        const response = await fetch(`${API}/auth/verify`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ userId: currentUserId, code }),
+                        });
+                        
+                        const data = await response.json();
+
+                        if (!response.ok) {
+                            boxes.forEach(b => { 
+                                b.classList.add('error'); 
+                                b.value = ''; 
+                                b.classList.remove('filled'); 
+                            });
+                            setTimeout(() => boxes.forEach(b => b.classList.remove('error')), 600);
+                            boxes[0].focus();
+                            document.getElementById('verifyBtn').disabled = true;
+                            showToast(data.error || '❌ رمز خاطئ أو منتهي الصلاحية', 'error');
+                            btn.disabled = false;
+                            btn.textContent = 'تحقق من الحساب ✓';
+                            console.error('Verify error:', data);
+                            return;
+                        }
+
+                        clearInterval(timerInterval);
+                        showToast('✅ تم التحقق بنجاح! جاري تحويلك...', 'success');
+                        console.log('✅ Email verified successfully');
+                        setTimeout(() => { location.href = 'login.html'; }, 1800);
+
+                    } catch (err) {
+                        showToast('❌ خطأ في الاتصال بالخادم', 'error');
+                        btn.disabled = false;
+                        btn.textContent = 'تحقق من الحساب ✓';
+                        console.error('Fetch error:', err);
+                    }
+                });
             }
         });
 
@@ -670,6 +707,7 @@
             clearInterval(timerInterval);
             let rem = seconds;
             const el = document.getElementById('timerDisplay');
+            if (!el) return;
             timerInterval = setInterval(() => {
                 rem--;
                 el.textContent = `${String(Math.floor(rem / 60)).padStart(2, '0')}:${String(rem % 60).padStart(2, '0')}`;
@@ -680,6 +718,7 @@
         /* Resend countdown */
         function startResendCountdown(seconds) {
             const btn = document.getElementById('resendBtn');
+            if (!btn) return;
             btn.disabled = true;
             let count = seconds;
             resendTimeout = setInterval(() => {
@@ -696,6 +735,7 @@
             }
 
             const btn = document.getElementById('resendBtn');
+            if (!btn) return;
             btn.disabled = true;
             btn.textContent = 'جاري الإرسال...';
 

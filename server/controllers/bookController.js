@@ -142,19 +142,17 @@ async function addBook(req, res) {
             return res.status(400).json({ error: 'حالة الكتاب غير صالحة' });
         }
 
-        // Use first image as image_url, or null
-        const firstImage = Array.isArray(images) && images.length > 0 ? images[0] : null;
-
+        // Create book (image_url stays null — images go to book_images table)
         const result = await pool.query(
             `INSERT INTO books (title, description, condition, image_url, owner_id, status, is_visible, is_available)
-             VALUES ($1, $2, $3, $4, $5, 'available', TRUE, TRUE)
+             VALUES ($1, $2, $3, NULL, $4, 'available', TRUE, TRUE)
              RETURNING *`,
-            [title, description, condition, firstImage, req.user.id]
+            [title, description, condition, req.user.id]
         );
 
         const bookId = result.rows[0].id;
 
-        // Save all images as book_images rows
+        // Save images to book_images table (image_path is TEXT — can hold base64)
         if (Array.isArray(images) && images.length > 0) {
             for (let i = 0; i < images.length; i++) {
                 await pool.query(
@@ -166,12 +164,10 @@ async function addBook(req, res) {
 
         res.status(201).json(result.rows[0]);
     } catch (err) {
-        console.error('addBook error:', err);
-        res.status(500).json({ error: 'فشل إضافة الكتاب' });
+        console.error('addBook error:', err.message);
+        res.status(500).json({ error: 'فشل إضافة الكتاب: ' + err.message });
     }
 }
-
-
 // ── Update book (owner only) ──────────────────────────────────────────────
 async function updateBook(req, res) {
     try {

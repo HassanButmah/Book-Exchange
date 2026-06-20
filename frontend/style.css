@@ -2591,6 +2591,67 @@ input::placeholder {
     .features-grid {
         grid-template-columns: 1fr;
     }
+
+    /* Messages page on extra small phones */
+    .messages-container {
+        padding: 60px 0.5rem 0.5rem;
+    }
+
+    .messages-header {
+        margin-bottom: 0.5rem;
+    }
+
+    .messages-header h1 {
+        font-size: 1.4rem;
+    }
+
+    .chat-header {
+        padding: 8px 12px;
+    }
+
+    .chat-user-info h2,
+    .user-name {
+        font-size: 0.9rem;
+    }
+
+    .message-content {
+        max-width: 75%;
+        padding: 8px 12px;
+        font-size: 0.9rem;
+    }
+
+    .messages-list {
+        padding: 12px;
+        gap: 6px;
+    }
+
+    .message-input-area {
+        padding: 10px;
+    }
+
+    #messageInput {
+        min-height: 38px;
+        font-size: 0.9rem;
+        padding: 8px 12px;
+    }
+
+    .send-btn {
+        width: 38px;
+        height: 38px;
+        min-width: 38px;
+    }
+
+    .conversations-list {
+        padding: 0;
+    }
+
+    .conversation-item {
+        padding: 10px 12px;
+    }
+
+    .conversations-header h2 {
+        font-size: 1.2rem;
+    }
 }
 /* ===== MESSAGES ===== */
 .chatbot-messages {
@@ -4146,6 +4207,66 @@ button[type="submit"].send-btn {
     .form-group input,
     .form-group textarea {
         font-size: 16px; /* Prevent zoom */
+    }
+
+    /* Messages on extra extra small phones */
+    .messages-header h1 {
+        font-size: 1.2rem;
+        gap: 6px;
+    }
+
+    .messages-header p {
+        font-size: 0.8rem;
+    }
+
+    .chat-header {
+        padding: 6px 10px;
+        gap: 8px;
+    }
+
+    .chat-back-btn {
+        width: 36px;
+        height: 36px;
+        padding: 4px;
+    }
+
+    .chat-user-info h2,
+    .user-name {
+        font-size: 0.85rem;
+    }
+
+    .message-content {
+        max-width: 70%;
+        padding: 6px 10px;
+        font-size: 0.85rem;
+    }
+
+    .message-content small {
+        font-size: 0.65rem;
+    }
+
+    #messageInput {
+        min-height: 36px;
+        font-size: 0.9rem;
+        padding: 6px 10px;
+    }
+
+    .send-btn {
+        width: 36px;
+        height: 36px;
+        min-width: 36px;
+    }
+
+    .conversation-item {
+        padding: 8px 10px;
+    }
+
+    .conversation-info h3 {
+        font-size: 0.9rem;
+    }
+
+    .last-message {
+        font-size: 0.75rem;
     }
 }
 

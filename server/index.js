@@ -40,6 +40,9 @@ app.use(bodyParser.urlencoded({ extended: true, limit: '20mb' }));
 // Serve uploaded images as static files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// Serve frontend static files
+app.use(express.static(path.join(__dirname, '../frontend')));
+
 // Routes
 app.use('/api/chat', chatRoutes);
 app.use('/api/auth', authRoutes);
@@ -53,11 +56,6 @@ app.get('/api/health', (req, res) => {
     res.json({ status: 'OK', env: process.env.NODE_ENV || 'development' });
 });
 
-// 404 for undefined API routes
-app.use('/api', (req, res) => {
-    res.status(404).json({ error: 'API endpoint not found' });
-});
-
 // Seed endpoint — triggers DB init + seeding on demand (useful after first deploy)
 app.get('/api/setup', async (req, res) => {
     try {
@@ -67,6 +65,16 @@ app.get('/api/setup', async (req, res) => {
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
+});
+
+// SPA fallback - serve index.html for non-API routes
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../frontend/index.html'));
+});
+
+// 404 for undefined API routes
+app.use('/api', (req, res) => {
+    res.status(404).json({ error: 'API endpoint not found' });
 });
 
 // Error handling

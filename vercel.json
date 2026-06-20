@@ -32,24 +32,28 @@
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "server/index.js",
+      "dest": "/server/index.js",
       "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
     },
     {
       "src": "/uploads/(.*)",
-      "dest": "server/index.js"
+      "dest": "/server/index.js"
     },
     {
-      "src": "/(.*\\.(js|css|png|jpg|jpeg|gif|svg|ico|webp|woff|woff2|ttf))",
-      "dest": "frontend/$1"
+      "src": "/frontend/(.*)",
+      "dest": "/frontend/$1"
     },
     {
-      "src": "/(.*\\.html)",
-      "dest": "frontend/$1"
+      "src": "/(?!api|uploads).*\\.(js|css|png|jpg|jpeg|gif|svg|ico|webp|woff|woff2|ttf)$",
+      "dest": "/frontend/$1"
     },
     {
-      "src": "/",
-      "dest": "frontend/index.html"
+      "src": "/(?!api|uploads).*\\.html$",
+      "dest": "/frontend/$1"
+    },
+    {
+      "src": "^/$",
+      "dest": "/frontend/index.html"
     }
   ]
 }

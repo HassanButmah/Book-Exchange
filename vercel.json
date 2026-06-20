@@ -21,11 +21,7 @@
       "dest": "server/index.js"
     },
     {
-      "src": "/frontend/(.*)",
-      "dest": "/frontend/$1"
-    },
-    {
-      "src": "/(.*\\.(js|css|png|jpg|jpeg|gif|svg|ico|webp|woff|woff2|ttf))",
+      "src": "/(.*\\.(js|css|png|jpg|jpeg|gif|svg|ico|webp|woff|woff2))",
       "dest": "/frontend/$1"
     },
     {
@@ -33,7 +29,7 @@
       "dest": "/frontend/$1"
     },
     {
-      "src": "^/$",
+      "src": "/",
       "dest": "/frontend/index.html"
     }
   ]

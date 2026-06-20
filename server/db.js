@@ -54,7 +54,7 @@ async function initializeDatabase() {
                 title VARCHAR(255) NOT NULL,
                 description TEXT NOT NULL,
                 condition VARCHAR(50) NOT NULL CHECK (condition IN ('New', 'Used')),
-                image_url VARCHAR(500),
+                image_url TEXT,
                 owner_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
                 is_available BOOLEAN DEFAULT TRUE,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -69,6 +69,10 @@ async function initializeDatabase() {
         await pool.query(`ALTER TABLE books ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'available';`);
         await pool.query(`ALTER TABLE books ADD COLUMN IF NOT EXISTS is_visible BOOLEAN DEFAULT TRUE;`);
         await pool.query(`ALTER TABLE books ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;`);
+
+        // Migrate image columns to TEXT to support base64 data URLs
+        await pool.query(`ALTER TABLE books ALTER COLUMN image_url TYPE TEXT;`).catch(() => {});
+        await pool.query(`ALTER TABLE book_images ALTER COLUMN image_path TYPE TEXT;`).catch(() => {});
 
         // Back-fill any rows that pre-date these columns
         await pool.query(`

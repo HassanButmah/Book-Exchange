@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "echo 'Build complete'",
+  "buildCommand": "npm install",
   "functions": {
     "server/index.js": {
       "memory": 1024,
@@ -11,32 +11,11 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "/server/index.js"
+      "destination": "server/index.js"
     },
     {
       "source": "/uploads/(.*)",
-      "destination": "/server/index.js"
-    }
-  ],
-  "headers": [
-    {
-      "source": "/(.*\\.html)",
-      "headers": [
-        { "key": "Cache-Control", "value": "no-store, no-cache, must-revalidate, max-age=0" },
-        { "key": "Pragma", "value": "no-cache" }
-      ]
-    },
-    {
-      "source": "/(.*\\.js)",
-      "headers": [
-        { "key": "Cache-Control", "value": "no-store, no-cache, must-revalidate, max-age=0" }
-      ]
-    },
-    {
-      "source": "/(.*\\.css)",
-      "headers": [
-        { "key": "Cache-Control", "value": "no-store, no-cache, must-revalidate, max-age=0" }
-      ]
+      "destination": "server/index.js"
     }
   ],
   "routes": [

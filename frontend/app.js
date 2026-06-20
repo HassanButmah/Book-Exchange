@@ -92,10 +92,8 @@ function setupEventListeners() {
         document.getElementById('loginForm')?.addEventListener('submit', handleLogin);
     }
 
-    if (page === 'register.html') {
-        document.getElementById('registerForm')?.addEventListener('submit', handleRegister);
-        document.getElementById('verificationForm')?.addEventListener('submit', handleVerification);
-    }
+    // NOTE: register.html has its own custom JavaScript handlers - don't add listeners here
+    // if (page === 'register.html') { ... } ← Removed to avoid conflicts
 
     if (page === 'add-book.html') {
         document.getElementById('addBookForm')?.addEventListener('submit', handleAddBook);

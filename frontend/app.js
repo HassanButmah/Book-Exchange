@@ -4,10 +4,9 @@ const API_BASE_URL = IS_LOCAL ? 'http://localhost:5000/api' : '/api';
 const BASE_URL = IS_LOCAL ? 'http://localhost:5000' : '';
 function sanitizeImageUrl(url) {
     if (!url) return null;
-    if (url.startsWith('/')) {
-        return BASE_URL + url;
-    }
-    // Optionally allow data: URLs for placeholders? but we have fallback.
+    if (url.startsWith('data:image/')) return url;           // base64 data URLs ✓
+    if (url.startsWith('https://') || url.startsWith('http://')) return url; // external URLs ✓
+    if (url.startsWith('/')) return BASE_URL + url;          // local /uploads/ paths ✓
     return null;
 }
 
